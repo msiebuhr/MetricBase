@@ -24,7 +24,7 @@ func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
 
 func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
 	listReq := &MetricBase.ListRequest{Result: make(chan string, 10)}
-	listRes := make([]string, 10)
+	listRes := make([]string, 0)
 	h.backend.List(*listReq)
 
 	for res := range listReq.Result {
