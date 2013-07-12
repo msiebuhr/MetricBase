@@ -6,6 +6,7 @@ import (
 	"github.com/msiebuhr/MetricBase"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
@@ -15,7 +16,11 @@ type HttpServer struct {
 }
 
 func CreateHttpServer(staticRoot string) *HttpServer {
-	return &HttpServer{staticRoot: staticRoot}
+	absRoot, err := filepath.Abs(staticRoot)
+	if err != nil {
+		absRoot = staticRoot
+	}
+	return &HttpServer{staticRoot: absRoot}
 }
 
 func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
@@ -63,21 +68,33 @@ func (h *HttpServer) GetMetric(w http.ResponseWriter, req *http.Request) {
 	// Encode as JSON
 	b, err := json.Marshal(newData)
 	if err != nil {
-		http.NotFound(w, req)
+		http.Error(w, "Could not Encode JSON", http.StatusInternalServerError)
 		return
 	}
 	w.Write(b)
 }
 
 func (h *HttpServer) GetStatic(w http.ResponseWriter, req *http.Request) {
-	// Return whatever static file we find...
-	fmt.Fprintf(w, "Serve static file %v.", req.URL.Path[1:])
+	// Figure out the path
+	abspath, err := filepath.Abs(filepath.Join(h.staticRoot, req.URL.Path[1:]))
+	if err != nil {
+		http.Error(w, "Could not figure out path", http.StatusInternalServerError)
+		return
+	}
+	if !strings.HasPrefix(abspath, h.staticRoot) {
+		http.Error(w, "Invalid path", http.StatusInternalServerError)
+		return
+	}
+
+	// Takes care of checking the file exists, hunt down an index.html if it's
+	// a directory, setting correct content-type, range-requests, ...
+	http.ServeFile(w, req, abspath)
 }
 
 func (h *HttpServer) Start() {
 	http.HandleFunc("/rpc/list", h.GetList)
 	http.HandleFunc("/rpc/get/", h.GetMetric)
-	//http.HandleFunc("/", h.GetStatic)
+	http.HandleFunc("/", h.GetStatic)
 	err := http.ListenAndServe(":12345", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
