@@ -1,0 +1,157 @@
+<html>
+<head>
+	<title>MetricBase</title>
+	<meta charset="UTF-8" />
+	<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+	<!--
+	Bootstrap styling stolen from
+	http://twitter.github.io/bootstrap/examples/fluid.html
+	-->
+	<style type="text/css">
+		body {
+			padding-top: 60px;
+			padding-bottom: 40px;
+		}
+		.sidebar-nav {
+			padding: 9px 0;
+		}
+
+		@media (max-width: 980px) {
+			/* Enable use of floated navbar text */
+			.navbar-text.pull-right {
+				float: none;
+				padding-left: 5px;
+				padding-right: 5px;
+			}
+		}
+	</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="container-fluid">
+			<a class="brand" href="#">MetricBase</a>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+	<div class="row-fluid">
+		<!-- Sidebar -->
+		<div class="span3">
+			<div class="well nav-list">
+				<ul class="nav nav-list" id="lines"></ul>
+			</div>
+		</div>
+
+		<!-- Graph -->
+		<div class="span9">
+			<div id="data" style="width: 100%; height: 300px"></div>
+			<div id="data-labels" style="well"></div>
+		</div>
+	</div>
+</div>
+
+<!-- JavaScript in the end for faster loading -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/1.2/dygraph-combined.min.js"></script>
+
+<script>
+	var selectedData = [];
+
+	// Get list of known data series
+	$.getJSON('/rpc/list', function (data) {
+		for(var i=0; i<data.length; i++) {
+			$('#lines').append(
+			'<li><a href="#">' + data[i] + '</a>'
+			);
+		}
+
+		$('#lines li').click(toggleData);
+	});
+
+	/* Update the list of what data to show.
+	 */
+	function toggleData(elem) {
+		var name = elem.toElement.innerText,
+			index = selectedData.indexOf(name);
+
+		// Add the element
+		if (index === -1) { selectedData.push(name); }
+		// Remove the element
+		else { selectedData.splice(index, 1); }
+		selectedData = selectedData.sort();
+
+		updateGraph();
+	}
+
+	/* Fetch the data, massage the data and put it into the graph.
+	 */
+	function updateGraph() {
+		// Sum up data in date -> [values]-structure
+		var data = {};
+
+		// Nothing selected?
+		if (selectedData.length === 0) {
+			$('#data').html('No series selected');
+			return;
+		}
+
+		/* Final touches on the fetched data and set up the graph.
+		 */
+		function done() {
+			// Process data into array of arrays
+
+			// Get all the values from data into arr;
+			var keys = Object.keys(data);
+			var arr = new Array(keys.length);
+			keys.forEach(function (d, i) {
+				arr[i] = data[d];
+			});
+
+			// Show Graph
+			var g = new Dygraph(
+				document.getElementById('data'),
+				arr,
+				{
+					labels: [].concat(['x'], selectedData),
+					labelsDiv: 'data-labels',
+					labelsKMB: true,
+				}
+			);
+		}
+
+		/* Get each series of data and put it into the 'data'-
+		 */
+		function getData(index) {
+			// Call done() if there is no more data to fetch
+			if (index > selectedData.length) { return done(); }
+
+			var name = selectedData[index];
+			$.getJSON('/rpc/get/' + name, function (out) {
+				var dates = Object.keys(out);
+
+				for(var i=0; i<dates.length; i++) {
+					var seconds = dates[i];
+					if (!(dates[i] in data)) {
+						data[seconds] = new Array(selectedData.length + 1);
+						data[seconds][0] = new Date(parseInt(seconds, 10) * 1000);
+					}
+					data[seconds][index + 1] = out[seconds];
+				}
+
+				getData(index + 1);
+			});
+		}
+
+		getData(0);
+	}
+
+	// Initial call to update initial state
+	updateGraph();
+</script>
+
+</body>
+<html>

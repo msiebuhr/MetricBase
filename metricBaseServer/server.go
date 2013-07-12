@@ -12,7 +12,7 @@ func main() {
 
 	// Create and add front- and back-ends
 
-	mb.AddFrontend(frontends.CreateHttpServer("./"))
+	mb.AddFrontend(frontends.CreateHttpServer("./http-pub"))
 	mb.AddFrontend(frontends.CreateGraphiteTcpServer())
 
 	//mb.AddBackend(backends.CreateMemoryBackend())
