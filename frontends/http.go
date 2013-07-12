@@ -14,8 +14,12 @@ type HttpServer struct {
 	backend    MetricBase.Backend
 }
 
-func CreateHttpServer(staticRoot string, backend MetricBase.Backend) HttpServer {
-	return HttpServer{staticRoot: staticRoot, backend: backend}
+func CreateHttpServer(staticRoot string) *HttpServer {
+	return &HttpServer{staticRoot: staticRoot}
+}
+
+func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
+	h.backend = backend
 }
 
 func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
@@ -78,4 +82,8 @@ func (h *HttpServer) Start() {
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+func (h *HttpServer) Stop() {
+	// NOP - no way of stopping a HTTP server, aparently
 }

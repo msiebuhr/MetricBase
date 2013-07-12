@@ -31,7 +31,7 @@ type DataRequest struct {
 
 // Interfaces
 type Backend interface {
-	AddBackend(Backend)
+	SetBackend(Backend)
 	Start()
 	Stop()
 	Add(AddRequest)
@@ -40,7 +40,7 @@ type Backend interface {
 }
 
 type Frontend interface {
-	AddBackend(Backend)
+	SetBackend(Backend)
 	Start()
 	Stop()
 }
