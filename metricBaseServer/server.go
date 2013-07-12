@@ -13,8 +13,10 @@ func main() {
 	// Create and add front- and back-ends
 
 	mb.AddFrontend(frontends.CreateHttpServer("./"))
+	mb.AddFrontend(frontends.CreateGraphiteTcpServer())
 
-	mb.AddBackend(backends.CreateMemoryBackend())
+	//mb.AddBackend(backends.CreateMemoryBackend())
+	mb.AddBackend(backends.CreateLevelDb("./level-db"))
 
 	mb.Start()
 }
