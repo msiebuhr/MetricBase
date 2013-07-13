@@ -104,10 +104,6 @@ func (s *LevelDb) List(req MetricBase.ListRequest) {
 	s.listRequests <- req
 }
 
-func (s *LevelDb) GetMetric(req MetricBase.DataRequest) {
-	s.dataRequests <- req
-}
-
 func (s *LevelDb) Stop() {
 	s.stopChan <- true
 }
