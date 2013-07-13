@@ -42,7 +42,17 @@ func (m *MetricBaseServer) Start() {
 		go m.frontends[i].Start()
 	}
 
+	// Wait for order to stop
 	<-m.stopChan
+
+	// Close up front-ends
+	for i := range m.frontends {
+		m.frontends[i].Stop()
+	}
+
+	for i := len(m.backends) - 1; i >= 0; i-- {
+		m.backends[i].Stop()
+	}
 }
 
 func (m *MetricBaseServer) Stop() {
