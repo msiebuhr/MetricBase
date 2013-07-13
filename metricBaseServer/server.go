@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/frontends"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -18,5 +22,11 @@ func main() {
 	//mb.AddBackend(backends.CreateMemoryBackend())
 	mb.AddBackend(backends.CreateLevelDb("./level-db"))
 
-	mb.Start()
+	go mb.Start()
+
+	// Listen for signals and stop
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	fmt.Println("Stopping server:", <-ch)
+	mb.Stop()
 }
