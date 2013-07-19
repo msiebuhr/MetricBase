@@ -49,7 +49,7 @@
 		<!-- Graph -->
 		<div class="span9">
 			<div id="data" style="width: 100%; height: 300px"></div>
-			<div id="data-labels" style="well"></div>
+			<div id="data-labels" class="well"></div>
 		</div>
 	</div>
 </div>
@@ -74,14 +74,20 @@
 
 	/* Update the list of what data to show.
 	 */
-	function toggleData(elem) {
-		var name = elem.toElement.innerText,
+	function toggleData(e) {
+		var elem = e.toElement,
+			name = elem.innerText,
 			index = selectedData.indexOf(name);
 
 		// Add the element
-		if (index === -1) { selectedData.push(name); }
-		// Remove the element
-		else { selectedData.splice(index, 1); }
+		if (index === -1) {
+			$(elem).css({fontWeight: "bold"})
+			selectedData.push(name);
+		} else {
+			// Remove the element
+			$(elem).css({fontWeight: ""})
+			selectedData.splice(index, 1);
+		}
 		selectedData = selectedData.sort();
 
 		updateGraph();
@@ -117,8 +123,14 @@
 				arr,
 				{
 					labels: [].concat(['x'], selectedData),
+					// Data display
+					connectSeparatedPoints: true,
+					// Labels
 					labelsDiv: 'data-labels',
 					labelsKMB: true,
+					labelsSeparateLines: true,
+					labelsShowZeroValues: true,
+					legend: "always",
 				}
 			);
 		}
@@ -138,6 +150,10 @@
 					if (!(dates[i] in data)) {
 						data[seconds] = new Array(selectedData.length + 1);
 						data[seconds][0] = new Date(parseInt(seconds, 10) * 1000);
+						// Set values to null
+						for (var nullI=1; nullI < selectedData.length + 1; nullI += 1) {
+							data[seconds][nullI] = null;
+						}
 					}
 					data[seconds][index + 1] = out[seconds];
 				}
