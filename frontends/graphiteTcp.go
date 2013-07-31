@@ -24,8 +24,9 @@ func (g *GraphiteTcpServer) handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	// Create addition-channel to backend
-	addReq := &MetricBase.AddRequest{Data: make(chan MetricBase.Metric, 100)}
-	g.backend.Add(*addReq)
+	addChan := make(chan MetricBase.Metric, 100)
+	g.backend.AddMetrics(addChan)
+	defer close(addChan)
 
 	for scanner.Scan() {
 		// PARSE METRIC LINES
@@ -36,7 +37,7 @@ func (g *GraphiteTcpServer) handleConnection(conn net.Conn) {
 			break
 		}
 		// Send parsed metric to the back-end
-		addReq.Data <- m
+		addChan <- m
 	}
 
 	if err := scanner.Err(); err != nil {

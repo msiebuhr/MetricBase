@@ -28,15 +28,17 @@ func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
 }
 
 func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
-	listReq := &MetricBase.ListRequest{Result: make(chan string, 10)}
-	listRes := make([]string, 0)
-	h.backend.List(*listReq)
+	// Fetch metrics
+	result := make(chan string, 100)
+	h.backend.GetMetricsList(result)
 
-	for res := range listReq.Result {
-		listRes = append(listRes, res)
+	// Order them into a list for JSON-encoding
+	resultList := make([]string, 0)
+	for res := range result {
+		resultList = append(resultList, res)
 	}
 
-	b, err := json.Marshal(listRes)
+	b, err := json.Marshal(resultList)
 	if err != nil {
 		http.Error(w, "Could not Encode JSON", http.StatusInternalServerError)
 		return
@@ -53,15 +55,12 @@ func (h *HttpServer) GetMetric(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// New request
-	dataReq := &MetricBase.DataRequest{
-		Name:   urlParts[2],
-		Result: make(chan MetricBase.MetricValues),
-	}
+	resultChan := make(chan MetricBase.MetricValues, 100)
+	h.backend.GetRawData(urlParts[2], 0, 0, resultChan)
 
 	// Fetch the data
-	h.backend.Data(*dataReq)
 	newData := make(map[string]float64)
-	for data := range dataReq.Result {
+	for data := range resultChan {
 		newData[fmt.Sprintf("%v", data.Time)] = data.Value
 	}
 

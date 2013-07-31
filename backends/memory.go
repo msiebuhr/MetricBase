@@ -10,7 +10,7 @@ type MemoryBackend struct {
 
 	stopChan        chan bool
 	addChan         chan MetricBase.Metric
-	listRequestChan chan MetricBase.ListRequest
+	listRequestChan chan chan string
 	dataRequestChan chan MetricBase.DataRequest
 }
 
@@ -19,7 +19,7 @@ func CreateMemoryBackend() *MemoryBackend {
 		data:            make(map[string][]MetricBase.MetricValues),
 		stopChan:        make(chan bool),
 		addChan:         make(chan MetricBase.Metric),
-		listRequestChan: make(chan MetricBase.ListRequest),
+		listRequestChan: make(chan chan string),
 		dataRequestChan: make(chan MetricBase.DataRequest),
 	}
 }
@@ -35,9 +35,9 @@ func (m *MemoryBackend) Start() {
 				)
 			case req := <-m.listRequestChan:
 				for key := range m.data {
-					req.Result <- key
+					req <- key
 				}
-				close(req.Result)
+				close(req)
 			case req := <-m.dataRequestChan:
 				if _, ok := m.data[req.Name]; ok {
 					for _, data := range m.data[req.Name] {
@@ -55,19 +55,28 @@ func (m *MemoryBackend) Start() {
 		}
 	}()
 }
+
 func (m *MemoryBackend) Stop() { m.stopChan <- true }
-func (m *MemoryBackend) Add(metrics MetricBase.AddRequest) {
+
+func (m *MemoryBackend) AddMetrics(metrics chan MetricBase.Metric) {
 	go func() {
-		for metric := range metrics.Data {
+		for metric := range metrics {
 			m.addChan <- metric
 		}
 	}()
 }
-func (m *MemoryBackend) List(req MetricBase.ListRequest) {
-	m.listRequestChan <- req
+
+func (m *MemoryBackend) GetMetricsList(results chan string) {
+	m.listRequestChan <- results
 }
-func (m *MemoryBackend) Data(req MetricBase.DataRequest) {
-	m.dataRequestChan <- req
+
+func (m *MemoryBackend) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
+	m.dataRequestChan <- MetricBase.DataRequest{
+		Name:   name,
+		From:   from,
+		To:     to,
+		Result: result,
+	}
 }
 
 func (m *MemoryBackend) SetBackend(backend MetricBase.Backend) {

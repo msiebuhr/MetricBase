@@ -46,7 +46,7 @@ type LevelDb struct {
 	store *levigo.DB
 
 	addRequests  chan MetricBase.Metric
-	listRequests chan MetricBase.ListRequest
+	listRequests chan chan string
 	dataRequests chan MetricBase.DataRequest
 
 	stopChan chan bool
@@ -64,7 +64,7 @@ func CreateLevelDb(filename string) *LevelDb {
 
 	ls := &LevelDb{
 		addRequests:  make(chan MetricBase.Metric, 100),
-		listRequests: make(chan MetricBase.ListRequest, 10),
+		listRequests: make(chan chan string, 10),
 		dataRequests: make(chan MetricBase.DataRequest, 10),
 		stopChan:     make(chan bool),
 		store:        db,
@@ -92,16 +92,12 @@ func (ls *LevelDb) Start() {
 	}()
 }
 
-func (s *LevelDb) Add(req MetricBase.AddRequest) {
+func (s *LevelDb) AddMetrics(metrics chan MetricBase.Metric) {
 	go func() {
-		for m := range req.Data {
+		for m := range metrics {
 			s.addRequests <- m
 		}
 	}()
-}
-
-func (s *LevelDb) List(req MetricBase.ListRequest) {
-	s.listRequests <- req
 }
 
 func (s *LevelDb) Stop() {
@@ -115,7 +111,7 @@ func (s *LevelDb) addMetric(metric MetricBase.Metric) {
 	_ = s.store.Put(wo, k, v)
 }
 
-func (s *LevelDb) listMetrics(query MetricBase.ListRequest) {
+func (s *LevelDb) listMetrics(result chan string) {
 	ro := levigo.NewReadOptions()
 	ro.SetFillCache(false)
 	iter := s.store.NewIterator(ro)
@@ -135,16 +131,12 @@ func (s *LevelDb) listMetrics(query MetricBase.ListRequest) {
 
 		// Ignore similar names.
 		if name != currentName {
-			query.Result <- name
+			result <- name
 			currentName = name
 		}
 	}
 
-	close(query.Result)
-}
-
-func (s *LevelDb) Data(query MetricBase.DataRequest) {
-	s.dataRequests <- query
+	close(result)
 }
 
 func (s *LevelDb) handleData(query MetricBase.DataRequest) {
@@ -169,6 +161,19 @@ func (s *LevelDb) handleData(query MetricBase.DataRequest) {
 		query.Result <- MetricBase.MetricValues{Time: time, Value: value}
 	}
 	close(query.Result)
+}
+
+func (l *LevelDb) GetMetricsList(results chan string) {
+	l.listRequests <- results
+}
+
+func (l *LevelDb) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
+	l.dataRequests <- MetricBase.DataRequest{
+		Name:   name,
+		From:   from,
+		To:     to,
+		Result: result,
+	}
 }
 
 // NO-OP

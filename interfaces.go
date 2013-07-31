@@ -19,14 +19,6 @@ type Metric struct {
 }
 
 // Requests
-type AddRequest struct {
-	Data chan Metric
-}
-
-type ListRequest struct {
-	Result chan string
-}
-
 type DataRequest struct {
 	Name   string
 	From   int64
@@ -34,16 +26,14 @@ type DataRequest struct {
 	Result chan MetricValues
 }
 
-// TODO: Helpers to generate these requests
-
 // Interfaces
 type Backend interface {
 	SetBackend(Backend)
 	Start()
 	Stop()
-	Add(AddRequest)
-	List(ListRequest)
-	Data(DataRequest)
+	AddMetrics(chan Metric)
+	GetRawData(string, int64, int64, chan MetricValues)
+	GetMetricsList(chan string)
 }
 
 type Frontend interface {

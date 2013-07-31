@@ -19,8 +19,8 @@ func main() {
 	mb.AddFrontend(frontends.CreateHttpServer("./http-pub"))
 	mb.AddFrontend(frontends.CreateGraphiteTcpServer())
 
-	//mb.AddBackend(backends.CreateMemoryBackend())
-	mb.AddBackend(backends.CreateLevelDb("./level-db"))
+	mb.AddBackend(backends.CreateMemoryBackend())
+	//mb.AddBackend(backends.CreateLevelDb("./level-db"))
 
 	go mb.Start()
 

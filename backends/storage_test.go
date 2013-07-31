@@ -14,36 +14,31 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	defer backend.Stop()
 
 	// Load some data and read it back out
-	addReq := &MetricBase.AddRequest{Data: make(chan MetricBase.Metric, 100)}
-	backend.Add(*addReq)
+	addChan := make(chan MetricBase.Metric, 10)
+	backend.AddMetrics(addChan)
 
 	m := MetricBase.Metric{}
 	m.Name = "foo.bar"
 	m.Time = 100
 	m.Value = 3.14
-	addReq.Data <- m
-	close(addReq.Data)
+	addChan <- m
+	close(addChan)
 
 	time.Sleep(time.Millisecond)
 
 	// Read back list of metrics
-	listReq := &MetricBase.ListRequest{Result: make(chan string, 1)}
-	backend.List(*listReq)
-	for metric := range listReq.Result {
+	metricNameChan := make(chan string, 1)
+	backend.GetMetricsList(metricNameChan)
+	for metric := range metricNameChan {
 		if metric != "foo.bar" {
 			t.Errorf("Expected to get metric 'foo.bar', got '%v'", metric)
 		}
 	}
 
 	// Read back the data
-	dataReq := &MetricBase.DataRequest{
-		Name:   "foo.bar",
-		Result: make(chan MetricBase.MetricValues),
-	}
-
-	// Fetch the data
-	backend.Data(*dataReq)
-	for data := range dataReq.Result {
+	metricChan := make(chan MetricBase.MetricValues)
+	backend.GetRawData("foo.bar", 0, 0, metricChan)
+	for data := range metricChan {
 		if data.Time != 100 {
 			t.Errorf("Expected to get time '100', got '%v'", data.Time)
 		}
