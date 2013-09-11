@@ -46,11 +46,11 @@ func (g *GraphiteTcpServer) handleConnection(conn net.Conn) {
 }
 
 func (g *GraphiteTcpServer) Start() {
-	server, err := net.Listen("tcp", ":8000")
+	server, err := net.Listen("tcp", ":2003")
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Listening on localhost:8000")
+	fmt.Println("Listening on localhost:2003")
 
 	// Listen for connections
 	for {

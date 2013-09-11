@@ -94,7 +94,7 @@ func (h *HttpServer) Start() {
 	http.HandleFunc("/rpc/list", h.GetList)
 	http.HandleFunc("/rpc/get/", h.GetMetric)
 	http.HandleFunc("/", h.GetStatic)
-	err := http.ListenAndServe(":12345", nil)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
