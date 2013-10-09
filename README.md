@@ -22,12 +22,12 @@ some form or other for the server to compile. On Debian/Ubuntu it's
 
 	go get github.com/msiebuhr/MetricBase
 	go get github.com/jmhodges/levigo
-	(cd metricBaseServer; go build .)
+	go build ./bin/MetricBase/
 
 Start the server
 
-	./metricBaseServer/metricBaseServer
+	./MetricBase
 
-It listens for Graphites text protocol on TCP port 2003 and has a webserver
+It listens for the Graphite text protocol on TCP port 2003 and has a webserver
 running on http://localhost:8080/ that serves a simple front-end from
 `/http-pub/`.
