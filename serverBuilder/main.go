@@ -1,12 +1,16 @@
-package MetricBase
+package serverBuilder
 
-type MetricBaseServer struct {
-	frontends []Frontend
-	backends  []Backend
+import (
+	"github.com/msiebuhr/MetricBase"
+)
+
+type MetricServer struct {
+	frontends []MetricBase.Frontend
+	backends  []MetricBase.Backend
 	stopChan  chan bool
 }
 
-func (m *MetricBaseServer) AddFrontend(f Frontend) {
+func (m *MetricServer) AddFrontend(f MetricBase.Frontend) {
 	m.frontends = append(m.frontends, f)
 
 	// Hook up to the first backend
@@ -15,7 +19,7 @@ func (m *MetricBaseServer) AddFrontend(f Frontend) {
 	}
 }
 
-func (m *MetricBaseServer) AddBackend(b Backend) {
+func (m *MetricServer) AddBackend(b MetricBase.Backend) {
 	m.backends = append(m.backends, b)
 
 	// Make the last backend point to this one
@@ -31,7 +35,7 @@ func (m *MetricBaseServer) AddBackend(b Backend) {
 	}
 }
 
-func (m *MetricBaseServer) Start() {
+func (m *MetricServer) Start() {
 	// Start all back-ends in reverse order
 	for i := len(m.backends) - 1; i >= 0; i-- {
 		go m.backends[i].Start()
@@ -55,10 +59,10 @@ func (m *MetricBaseServer) Start() {
 	}
 }
 
-func (m *MetricBaseServer) Stop() {
+func (m *MetricServer) Stop() {
 	m.stopChan <- true
 }
 
-func CreateMetricBaseServer() MetricBaseServer {
-	return MetricBaseServer{stopChan: make(chan bool)}
+func CreateMetricServer() MetricServer {
+	return MetricServer{stopChan: make(chan bool)}
 }

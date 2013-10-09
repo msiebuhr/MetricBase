@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/frontends"
+	"github.com/msiebuhr/MetricBase/serverBuilder"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Create server
-	mb := MetricBase.CreateMetricBaseServer()
+	mb := serverBuilder.CreateMetricServer()
 
 	// Create and add front- and back-ends
 
