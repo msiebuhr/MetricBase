@@ -40,8 +40,7 @@ func (g *GraphiteTcpServer) handleConnection(conn io.ReadWriteCloser) {
 			// Send parsed metric to the back-end
 			addChan <- m
 		} else {
-			conn.Write([]byte("error!\n"))
-			//conn.Write(err.Message())
+			conn.Write([]byte(err.Error()))
 		}
 	}
 
