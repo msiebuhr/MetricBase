@@ -35,8 +35,11 @@ func TestSingleLineParserFail(t *testing.T) {
 	t.Parallel()
 	failLines := []string{
 		"",
-		"foo",
-		"foo 1 2.1",
+		"one",
+		"two elements",
+		"four elements to go",
+		"foo 1 should_be_int",
+		"name should_be_float 1",
 	}
 
 	for i, tt := range failLines {
