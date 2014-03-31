@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/frontends"
 	"github.com/msiebuhr/MetricBase/serverBuilder"
@@ -12,15 +13,14 @@ import (
 
 func main() {
 	// Create server
-	mb := serverBuilder.CreateMetricServer()
-
-	// Create and add front- and back-ends
-
-	mb.AddFrontend(frontends.CreateHttpServer("./http-pub"))
-	mb.AddFrontend(frontends.CreateGraphiteTcpServer())
-
-	mb.AddBackend(backends.CreateMemoryBackend())
-	//mb.AddBackend(backends.CreateLevelDb("./level-db"))
+	mb := serverBuilder.NewMetricServer(
+		[]MetricBase.Frontend{
+			frontends.CreateHttpServer("./http-pub"),
+			frontends.CreateGraphiteTcpServer(),
+		},
+		backends.CreateMemoryBackend(),
+		//backends.CreateLevelDb("./level-db")
+	)
 
 	go mb.Start()
 
