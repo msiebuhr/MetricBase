@@ -1,6 +1,7 @@
 package frontends
 
 import (
+	//"io"
 	"testing"
 	//"time"
 	"github.com/msiebuhr/MetricBase"
@@ -49,3 +50,26 @@ func TestSingleLineParserFail(t *testing.T) {
 		}
 	}
 }
+
+/*
+// Dummy ReadWriteCloser for testing
+type RWC struct{ data []byte }
+
+func (m RWC) Read(b []byte) (int, error) {
+
+	// Copy over as many bytes as we can
+	bytes := 0
+	for bytes < len(m.data) && bytes < len(b) {
+		b[bytes] = m.data[bytes]
+		bytes += 1
+	}
+	m.data = m.data[bytes:]
+
+	//fmt.Println("Writing", b)
+	return bytes, io.EOF
+}
+
+func (m RWC) Write(b []byte) (int, error) { return 0, nil }
+func (m RWC) Close() error                { m.data = make([]byte, 0); return nil }
+func (m RWC) String() string              { return string(m.data) }
+*/
