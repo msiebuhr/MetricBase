@@ -52,7 +52,7 @@ type LevelDb struct {
 	stopChan chan bool
 }
 
-func CreateLevelDb(filename string) *LevelDb {
+func NewLevelDb(filename string) *LevelDb {
 	options := levigo.NewOptions()
 	options.SetCreateIfMissing(true)
 

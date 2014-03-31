@@ -56,10 +56,10 @@ func TestLevelDbStoreAndGet(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-	generateTestStoreAndGet(CreateLevelDb(dir), t)
+	generateTestStoreAndGet(NewLevelDb(dir), t)
 }
 
 func TestMemoryStoreAndGet(t *testing.T) {
 	// Create tempdir (& remove afterwards)
-	generateTestStoreAndGet(CreateMemoryBackend(), t)
+	generateTestStoreAndGet(NewMemoryBackend(), t)
 }

@@ -15,7 +15,7 @@ type GraphiteTcpServer struct {
 	backend MetricBase.Backend
 }
 
-func CreateGraphiteTcpServer() *GraphiteTcpServer {
+func NewGraphiteTcpServer() *GraphiteTcpServer {
 	return &GraphiteTcpServer{}
 }
 

@@ -15,11 +15,10 @@ func main() {
 	// Create server
 	mb := serverBuilder.NewMetricServer(
 		[]MetricBase.Frontend{
-			frontends.CreateHttpServer("./http-pub"),
-			frontends.CreateGraphiteTcpServer(),
+			frontends.NewHttpServer("./http-pub"),
+			frontends.NewGraphiteTcpServer(),
 		},
-		backends.CreateMemoryBackend(),
-		//backends.CreateLevelDb("./level-db")
+		backends.NewMemoryBackend(),
 	)
 
 	go mb.Start()

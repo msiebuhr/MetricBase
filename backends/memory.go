@@ -14,7 +14,7 @@ type MemoryBackend struct {
 	dataRequestChan chan MetricBase.DataRequest
 }
 
-func CreateMemoryBackend() *MemoryBackend {
+func NewMemoryBackend() *MemoryBackend {
 	return &MemoryBackend{
 		data:            make(map[string][]MetricBase.MetricValues),
 		stopChan:        make(chan bool),

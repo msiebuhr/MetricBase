@@ -15,7 +15,7 @@ type HttpServer struct {
 	backend    MetricBase.Backend
 }
 
-func CreateHttpServer(staticRoot string) *HttpServer {
+func NewHttpServer(staticRoot string) *HttpServer {
 	absRoot, err := filepath.Abs(staticRoot)
 	if err != nil {
 		absRoot = staticRoot
