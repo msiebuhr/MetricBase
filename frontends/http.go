@@ -94,6 +94,7 @@ func (h *HttpServer) Start() {
 	http.HandleFunc("/rpc/list", h.GetList)
 	http.HandleFunc("/rpc/get/", h.GetMetric)
 	http.HandleFunc("/", h.GetStatic)
+	fmt.Println("Web interface on http://localhost:8080/")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)

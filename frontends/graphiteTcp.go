@@ -85,7 +85,7 @@ func (g *GraphiteTcpServer) Start() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Listening on localhost:2003")
+	fmt.Println("Graphite TCP interface on :2003")
 
 	// Listen for connections
 	for {
