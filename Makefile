@@ -5,19 +5,23 @@ all: test fmt vet
 vet:
 	go vet ./...
 
-build:
+%.go: %.rl
+	ragel -Z $<
+	gofmt -w $@
+
+build: query/graphiteParser/parser.go
 	go build ./...
 
 clean:
 	go clean ./...
 
-test:
+test: query/graphiteParser/parser.go
 	go test ./...
 
 fmt:
 	go fmt ./...
 
-benchmark:
+benchmark: query/graphiteParser/parser.go
 	go test ./... -bench=".*"
 
 git-pre-commit-hook:
