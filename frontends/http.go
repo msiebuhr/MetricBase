@@ -3,11 +3,13 @@ package frontends
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/msiebuhr/MetricBase"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/backends"
 )
 
 type HttpServer struct {
@@ -28,17 +30,7 @@ func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
 }
 
 func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
-	// Fetch metrics
-	result := make(chan string, 100)
-	h.backend.GetMetricsList(result)
-
-	// Order them into a list for JSON-encoding
-	resultList := make([]string, 0)
-	for res := range result {
-		resultList = append(resultList, res)
-	}
-
-	b, err := json.Marshal(resultList)
+	b, err := json.Marshal(backends.GetMetricsAsList(h.backend))
 	if err != nil {
 		http.Error(w, "Could not Encode JSON", http.StatusInternalServerError)
 		return
