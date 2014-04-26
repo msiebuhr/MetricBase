@@ -121,7 +121,7 @@ func (l *LevelDb) listMetrics(result chan string) {
 
 	var currentName string = ""
 
-	for iter = iter; iter.Valid(); iter.Next() {
+	for _ = iter; iter.Valid(); iter.Next() {
 		err, name, _ := parseMetricKey(iter.Key())
 
 		// Ignore errors
@@ -146,7 +146,7 @@ func (l *LevelDb) handleData(query MetricBase.DataRequest) {
 	defer iter.Close()
 
 	iter.Seek([]byte(fmt.Sprintf("%v:", query.Name)))
-	for iter = iter; iter.Valid(); iter.Next() {
+	for _ = iter; iter.Valid(); iter.Next() {
 		err, name, time := parseMetricKey(iter.Key())
 		value := parseMetricValue(iter.Value())
 

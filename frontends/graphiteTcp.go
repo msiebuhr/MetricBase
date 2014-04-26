@@ -45,7 +45,7 @@ func (g *GraphiteTcpServer) handleConnection(conn io.ReadWriteCloser) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error while parsing text: %v", err)
+		fmt.Printf("Error while parsing text: %v", err)
 	}
 }
 

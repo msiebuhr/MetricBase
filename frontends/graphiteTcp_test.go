@@ -27,7 +27,7 @@ func TestSingleLineParsing(t *testing.T) {
 	for i, tt := range linetests {
 		_, outMetric := parseGraphiteLine(tt.in)
 		if outMetric != tt.out {
-			t.Errorf("%d. parseGraphiteLine(%s) => %s, want %s", i, tt.in, outMetric, tt.out)
+			t.Errorf("%d. parseGraphiteLine(%s) => %v, want %v", i, tt.in, outMetric, tt.out)
 		}
 	}
 }
