@@ -22,24 +22,24 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	time.Sleep(time.Millisecond)
 
 	// Read back list of metrics
-	metricNameChan := make(chan string, 1)
-	backend.GetMetricsList(metricNameChan)
-	for metric := range metricNameChan {
-		if metric != "foo.bar" {
-			t.Errorf("Expected to get metric 'foo.bar', got '%v'", metric)
-		}
+	metricNames := GetMetricsAsList(backend)
+	if len(metricNames) != 1 {
+		t.Errorf("Expected to get one metric back, got %d", len(metricNames))
+	} else if metricNames[0] != "foo.bar" {
+		t.Errorf("Expected the metric name to be 'foo.bar', got '%v'", metricNames[0])
 	}
 
 	// Read back the data
-	metricChan := make(chan MetricBase.MetricValues)
-	backend.GetRawData("foo.bar", 0, 0, metricChan)
-	for data := range metricChan {
-		if data.Time != 100 {
-			t.Errorf("Expected to get time '100', got '%v'", data.Time)
-		}
-		if data.Value != 3.14 {
-			t.Errorf("Expected to get time '3.14', got '%v'", data.Value)
-		}
+	data := GetDataAsList(backend, "foo.bar", 0, 0)
+	if len(data) != 1 {
+		t.Fatalf("Expected to get one result, got %d", len(data))
+	}
+
+	if data[0].Value != 3.14 {
+		t.Errorf("Expected data[0].Value=3.14, got '%f'.", data[0].Value)
+	}
+	if data[0].Time != 100 {
+		t.Errorf("Expected data[0].Time=100, got '%d'.", data[0].Time)
 	}
 }
 
