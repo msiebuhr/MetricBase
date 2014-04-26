@@ -25,7 +25,6 @@ type DataRequest struct {
 
 // Interfaces
 type Backend interface {
-	SetBackend(Backend)
 	Start()
 	Stop()
 	AddMetrics(chan Metric)

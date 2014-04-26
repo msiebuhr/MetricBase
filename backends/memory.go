@@ -78,7 +78,3 @@ func (m *MemoryBackend) GetRawData(name string, from, to int64, result chan Metr
 		Result: result,
 	}
 }
-
-func (m *MemoryBackend) SetBackend(backend MetricBase.Backend) {
-	// NOP - the buck stops here
-}

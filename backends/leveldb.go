@@ -175,6 +175,3 @@ func (l *LevelDb) GetRawData(name string, from, to int64, result chan MetricBase
 		Result: result,
 	}
 }
-
-// NO-OP
-func (s *LevelDb) SetBackend(b MetricBase.Backend) {}
