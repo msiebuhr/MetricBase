@@ -73,48 +73,48 @@ func NewLevelDb(filename string) *LevelDb {
 	return ls
 }
 
-func (ls *LevelDb) Start() {
+func (l *LevelDb) Start() {
 	// Start listener-loop
 	go func() {
 		for {
 			select {
-			case <-ls.stopChan:
-				ls.store.Close()
+			case <-l.stopChan:
+				l.store.Close()
 				return
-			case metric := <-ls.addRequests:
-				ls.addMetric(metric)
-			case query := <-ls.listRequests:
-				ls.listMetrics(query)
-			case query := <-ls.dataRequests:
-				ls.handleData(query)
+			case metric := <-l.addRequests:
+				l.addMetric(metric)
+			case query := <-l.listRequests:
+				l.listMetrics(query)
+			case query := <-l.dataRequests:
+				l.handleData(query)
 			}
 		}
 	}()
 }
 
-func (s *LevelDb) AddMetrics(metrics chan MetricBase.Metric) {
+func (l *LevelDb) AddMetrics(metrics chan MetricBase.Metric) {
 	go func() {
 		for m := range metrics {
-			s.addRequests <- m
+			l.addRequests <- m
 		}
 	}()
 }
 
-func (s *LevelDb) Stop() {
-	s.stopChan <- true
+func (l *LevelDb) Stop() {
+	l.stopChan <- true
 }
 
-func (s *LevelDb) addMetric(metric MetricBase.Metric) {
+func (l *LevelDb) addMetric(metric MetricBase.Metric) {
 	wo := levigo.NewWriteOptions()
 	defer wo.Close()
 	k, v := serializeMetric(metric)
-	_ = s.store.Put(wo, k, v)
+	_ = l.store.Put(wo, k, v)
 }
 
-func (s *LevelDb) listMetrics(result chan string) {
+func (l *LevelDb) listMetrics(result chan string) {
 	ro := levigo.NewReadOptions()
 	ro.SetFillCache(false)
-	iter := s.store.NewIterator(ro)
+	iter := l.store.NewIterator(ro)
 	defer iter.Close()
 
 	iter.Seek([]byte{0x00})
@@ -139,10 +139,10 @@ func (s *LevelDb) listMetrics(result chan string) {
 	close(result)
 }
 
-func (s *LevelDb) handleData(query MetricBase.DataRequest) {
+func (l *LevelDb) handleData(query MetricBase.DataRequest) {
 	ro := levigo.NewReadOptions()
 	ro.SetFillCache(false)
-	iter := s.store.NewIterator(ro)
+	iter := l.store.NewIterator(ro)
 	defer iter.Close()
 
 	iter.Seek([]byte(fmt.Sprintf("%v:", query.Name)))
