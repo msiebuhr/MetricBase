@@ -16,12 +16,7 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	// Load some data and read it back out
 	addChan := make(chan MetricBase.Metric, 10)
 	backend.AddMetrics(addChan)
-
-	m := MetricBase.Metric{}
-	m.Name = "foo.bar"
-	m.Time = 100
-	m.Value = 3.14
-	addChan <- m
+	addChan <- *MetricBase.NewMetric("foo.bar", 3.14, 100)
 	close(addChan)
 
 	time.Sleep(time.Millisecond)
