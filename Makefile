@@ -1,6 +1,9 @@
 .PHONY: all test fmt benchmark git-add-hook
 
-all: test fmt
+all: test fmt vet
+
+vet:
+	go vet ./...
 
 build:
 	go build ./...
