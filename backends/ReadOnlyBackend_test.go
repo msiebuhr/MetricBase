@@ -44,4 +44,8 @@ func TestReadOnlyBackend(t *testing.T) {
 		t.Errorf("Expected data[0].Time=2, got '%d'.", data[1].Time)
 	}
 
+	data = GetDataAsList(backend, "foo", -1, 0)
+	if len(data) != 0 {
+		t.Errorf("Expected no data, got %v", data)
+	}
 }

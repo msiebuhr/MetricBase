@@ -43,7 +43,9 @@ func (r *ReadOnlyBackend) Start() {
 			case req := <-r.dataRequestChan:
 				if _, ok := r.data[req.Name]; ok {
 					for _, data := range r.data[req.Name] {
-						req.Result <- data
+						if req.From < data.Time && data.Time < req.To {
+							req.Result <- data
+						}
 					}
 				}
 				close(req.Result)
