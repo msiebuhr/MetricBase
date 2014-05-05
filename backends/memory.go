@@ -8,19 +8,19 @@ import (
 type MemoryBackend struct {
 	data map[string][]MetricBase.MetricValues
 
-	stopChan        chan bool
-	addChan         chan MetricBase.Metric
-	listRequestChan chan chan string
-	dataRequestChan chan dataRequest
+	stopChan     chan bool
+	addChan      chan MetricBase.Metric
+	listRequests chan chan string
+	dataRequests chan dataRequest
 }
 
 func NewMemoryBackend() *MemoryBackend {
 	return &MemoryBackend{
-		data:            make(map[string][]MetricBase.MetricValues),
-		stopChan:        make(chan bool),
-		addChan:         make(chan MetricBase.Metric),
-		listRequestChan: make(chan chan string),
-		dataRequestChan: make(chan dataRequest),
+		data:         make(map[string][]MetricBase.MetricValues),
+		stopChan:     make(chan bool),
+		addChan:      make(chan MetricBase.Metric),
+		listRequests: make(chan chan string),
+		dataRequests: make(chan dataRequest),
 	}
 }
 
@@ -33,12 +33,12 @@ func (m *MemoryBackend) Start() {
 					m.data[metric.Name],
 					MetricBase.MetricValues{Time: metric.Time, Value: metric.Value},
 				)
-			case req := <-m.listRequestChan:
+			case req := <-m.listRequests:
 				for key := range m.data {
 					req <- key
 				}
 				close(req)
-			case req := <-m.dataRequestChan:
+			case req := <-m.dataRequests:
 				if _, ok := m.data[req.Name]; ok {
 					for _, data := range m.data[req.Name] {
 						req.Result <- data
@@ -48,8 +48,8 @@ func (m *MemoryBackend) Start() {
 			case <-m.stopChan:
 				close(m.stopChan)
 				close(m.addChan)
-				close(m.listRequestChan)
-				close(m.dataRequestChan)
+				close(m.listRequests)
+				close(m.dataRequests)
 				return
 			}
 		}
@@ -67,11 +67,11 @@ func (m *MemoryBackend) AddMetrics(metrics chan MetricBase.Metric) {
 }
 
 func (m *MemoryBackend) GetMetricsList(results chan string) {
-	m.listRequestChan <- results
+	m.listRequests <- results
 }
 
 func (m *MemoryBackend) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
-	m.dataRequestChan <- dataRequest{
+	m.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,
 		To:     to,
