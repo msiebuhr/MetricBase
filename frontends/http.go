@@ -29,7 +29,7 @@ func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
 	h.backend = backend
 }
 
-func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) listHandler(w http.ResponseWriter, req *http.Request) {
 	b, err := json.Marshal(backends.GetMetricsAsList(h.backend))
 	if err != nil {
 		http.Error(w, "Could not Encode JSON", http.StatusInternalServerError)
@@ -38,7 +38,7 @@ func (h *HttpServer) GetList(w http.ResponseWriter, req *http.Request) {
 	w.Write(b)
 }
 
-func (h *HttpServer) GetMetric(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 	// Parse the URL
 	urlParts := strings.Split(req.URL.Path[1:], "/")
 	if len(urlParts) != 3 {
@@ -65,7 +65,7 @@ func (h *HttpServer) GetMetric(w http.ResponseWriter, req *http.Request) {
 	w.Write(b)
 }
 
-func (h *HttpServer) GetStatic(w http.ResponseWriter, req *http.Request) {
+func (h *HttpServer) staicHandler(w http.ResponseWriter, req *http.Request) {
 	// Figure out the path
 	abspath, err := filepath.Abs(filepath.Join(h.staticRoot, req.URL.Path[1:]))
 	if err != nil {
@@ -83,9 +83,9 @@ func (h *HttpServer) GetStatic(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *HttpServer) Start() {
-	http.HandleFunc("/rpc/list", h.GetList)
-	http.HandleFunc("/rpc/get/", h.GetMetric)
-	http.HandleFunc("/", h.GetStatic)
+	http.HandleFunc("/rpc/list", h.listHandler)
+	http.HandleFunc("/rpc/get/", h.metricHandler)
+	http.HandleFunc("/", h.staicHandler)
 	fmt.Println("Web interface on http://localhost:8080/")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
