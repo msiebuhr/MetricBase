@@ -1,4 +1,3 @@
-// In-memory metric store
 package backends
 
 import (
