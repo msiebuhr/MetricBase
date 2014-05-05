@@ -47,7 +47,7 @@ type LevelDb struct {
 
 	addRequests  chan MetricBase.Metric
 	listRequests chan chan string
-	dataRequests chan MetricBase.DataRequest
+	dataRequests chan dataRequest
 
 	stopChan chan bool
 }
@@ -65,7 +65,7 @@ func NewLevelDb(filename string) *LevelDb {
 	ls := &LevelDb{
 		addRequests:  make(chan MetricBase.Metric, 100),
 		listRequests: make(chan chan string, 10),
-		dataRequests: make(chan MetricBase.DataRequest, 10),
+		dataRequests: make(chan dataRequest, 10),
 		stopChan:     make(chan bool),
 		store:        db,
 	}
@@ -139,7 +139,7 @@ func (l *LevelDb) listMetrics(result chan string) {
 	close(result)
 }
 
-func (l *LevelDb) handleData(query MetricBase.DataRequest) {
+func (l *LevelDb) handleData(query dataRequest) {
 	ro := levigo.NewReadOptions()
 	ro.SetFillCache(false)
 	iter := l.store.NewIterator(ro)
@@ -168,7 +168,7 @@ func (l *LevelDb) GetMetricsList(results chan string) {
 }
 
 func (l *LevelDb) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
-	l.dataRequests <- MetricBase.DataRequest{
+	l.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,
 		To:     to,

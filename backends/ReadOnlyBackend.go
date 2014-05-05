@@ -9,7 +9,7 @@ type ReadOnlyBackend struct {
 
 	stopChan        chan bool
 	listRequestChan chan chan string
-	dataRequestChan chan MetricBase.DataRequest
+	dataRequestChan chan dataRequest
 }
 
 func NewReadOnlyBackend(metrics ...*MetricBase.Metric) *ReadOnlyBackend {
@@ -17,7 +17,7 @@ func NewReadOnlyBackend(metrics ...*MetricBase.Metric) *ReadOnlyBackend {
 		data:            make(map[string][]MetricBase.MetricValues),
 		stopChan:        make(chan bool),
 		listRequestChan: make(chan chan string),
-		dataRequestChan: make(chan MetricBase.DataRequest),
+		dataRequestChan: make(chan dataRequest),
 	}
 
 	// Add given metrics to backend
@@ -75,7 +75,7 @@ func (r *ReadOnlyBackend) GetMetricsList(results chan string) {
 }
 
 func (r *ReadOnlyBackend) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
-	r.dataRequestChan <- MetricBase.DataRequest{
+	r.dataRequestChan <- dataRequest{
 		Name:   name,
 		From:   from,
 		To:     to,

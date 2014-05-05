@@ -15,14 +15,6 @@ type Metric struct {
 	Name string
 }
 
-// Requests
-type DataRequest struct {
-	Name   string
-	From   int64
-	To     int64
-	Result chan MetricValues
-}
-
 // Interfaces
 type Backend interface {
 	Start()
