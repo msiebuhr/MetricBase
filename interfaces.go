@@ -19,7 +19,7 @@ type Metric struct {
 type Backend interface {
 	Start()
 	Stop()
-	AddMetrics(chan Metric)
+	AddMetric(Metric)
 	GetRawData(string, int64, int64, chan MetricValues)
 	GetMetricsList(chan string)
 }

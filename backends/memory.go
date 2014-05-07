@@ -57,12 +57,8 @@ func (m *MemoryBackend) Start() {
 
 func (m *MemoryBackend) Stop() { m.stopChan <- true }
 
-func (m *MemoryBackend) AddMetrics(metrics chan MetricBase.Metric) {
-	go func() {
-		for metric := range metrics {
-			m.addChan <- metric
-		}
-	}()
+func (m *MemoryBackend) AddMetric(metric MetricBase.Metric) {
+	m.addChan <- metric
 }
 
 func (m *MemoryBackend) GetMetricsList(results chan string) {

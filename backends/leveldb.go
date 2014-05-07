@@ -92,12 +92,8 @@ func (l *LevelDb) Start() {
 	}()
 }
 
-func (l *LevelDb) AddMetrics(metrics chan MetricBase.Metric) {
-	go func() {
-		for m := range metrics {
-			l.addRequests <- m
-		}
-	}()
+func (l *LevelDb) AddMetric(metric MetricBase.Metric) {
+	l.addRequests <- metric
 }
 
 func (l *LevelDb) Stop() {

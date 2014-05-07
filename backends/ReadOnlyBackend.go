@@ -59,14 +59,8 @@ func (r *ReadOnlyBackend) Start() {
 	}()
 }
 
-// TODO: Dummy addmetrics function
-func (r *ReadOnlyBackend) AddMetrics(c chan MetricBase.Metric) {
-	// Throw all data away
-	go func() {
-		for _ = range c {
-		}
-	}()
-}
+// AddMetric is a dummy function that throws all given data away.
+func (r *ReadOnlyBackend) AddMetric(c MetricBase.Metric) {}
 
 func (r *ReadOnlyBackend) Stop() { r.stopChan <- true }
 
