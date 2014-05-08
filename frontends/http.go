@@ -11,6 +11,7 @@ import (
 
 	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/query"
 )
 
 type HttpServer struct {
@@ -66,6 +67,78 @@ func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 	w.Write(b)
 }
 
+func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
+	// Populate query
+	req.ParseForm()
+
+	// Parse start and end times
+	startDateString := req.FormValue("start")
+	endDateString := req.FormValue("end")
+
+	if startDateString == "" {
+		startDateString = "-1w"
+	}
+	if endDateString == "" {
+		endDateString = "0"
+	}
+
+	// Parse the dates
+	// TODO: Know about absolute dates as well
+	startDuration, err := parseDuration(startDateString)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	endDuration, err := parseDuration(endDateString)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Switch, so we start with the earliest date
+	if startDuration > endDuration {
+		endDuration, startDuration = startDuration, endDuration
+	}
+
+	// Build the query
+	res, err := query.ParseGraphiteQuery(req.FormValue("q"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// ARGH. Tends to hang about here somewhere...
+	responses, err := res.Query(query.Request{
+		Backend: h.backend,
+		From:    time.Now().Add(startDuration).Unix(),
+		To:      time.Now().Add(endDuration).Unix(),
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch the data
+	newData := make(map[string]map[string]float64)
+	for _, result := range responses {
+		name := result.Meta["name"]
+		newData[name] = make(map[string]float64)
+		for data := range result.Data {
+			//fmt.Println("Got data", data)
+			newData[name][fmt.Sprintf("%v", data.Time)] = data.Value
+		}
+	}
+
+	// Encode as JSON
+	b, err := json.Marshal(newData)
+	if err != nil {
+		http.Error(w, "Could not Encode JSON", http.StatusInternalServerError)
+		return
+	}
+	w.Write(b)
+}
+
 func (h *HttpServer) staicHandler(w http.ResponseWriter, req *http.Request) {
 	// Figure out the path
 	abspath, err := filepath.Abs(filepath.Join(h.staticRoot, req.URL.Path[1:]))
@@ -86,6 +159,7 @@ func (h *HttpServer) staicHandler(w http.ResponseWriter, req *http.Request) {
 func (h *HttpServer) Start() {
 	http.HandleFunc("/rpc/list", h.listHandler)
 	http.HandleFunc("/rpc/get/", h.metricHandler)
+	http.HandleFunc("/rpc/query", h.queryHandler)
 	http.HandleFunc("/", h.staicHandler)
 	fmt.Println("Web interface on http://localhost:8080/")
 	err := http.ListenAndServe(":8080", nil)
