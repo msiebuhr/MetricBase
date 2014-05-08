@@ -27,7 +27,7 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	}
 
 	// Read back the data
-	data := GetDataAsList(backend, "foo.bar", 0, 0)
+	data := GetDataAsList(backend, "foo.bar", 99, 101)
 	if len(data) != 1 {
 		t.Fatalf("Expected to get one result, got %d", len(data))
 	}
@@ -37,6 +37,12 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	}
 	if data[0].Time != 100 {
 		t.Errorf("Expected data[0].Time=100, got '%d'.", data[0].Time)
+	}
+
+	// Make a query that shouldn't return any data
+	data = GetDataAsList(backend, "foo.bar", 0, 0)
+	if len(data) != 0 {
+		t.Errorf("Expected no data for query (foo.bar, 0, 0), got %v", data)
 	}
 }
 

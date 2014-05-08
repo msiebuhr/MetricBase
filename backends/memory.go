@@ -40,7 +40,9 @@ func (m *MemoryBackend) Start() {
 			case req := <-m.dataRequests:
 				if _, ok := m.data[req.Name]; ok {
 					for _, data := range m.data[req.Name] {
-						req.Result <- data
+						if req.From < data.Time && data.Time < req.To {
+							req.Result <- data
+						}
 					}
 				}
 				close(req.Result)

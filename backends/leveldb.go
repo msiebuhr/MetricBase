@@ -154,7 +154,9 @@ func (l *LevelDb) handleData(query dataRequest) {
 			continue
 		}
 
-		query.Result <- MetricBase.MetricValues{Time: time, Value: value}
+		if query.From < time && query.To > time {
+			query.Result <- MetricBase.MetricValues{Time: time, Value: value}
+		}
 	}
 	close(query.Result)
 }
