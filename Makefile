@@ -10,9 +10,10 @@ vet:
 	gofmt -w $@
 
 build: query/graphiteParser/parser.go
-	go build ./...
+	go build ./bin/MetricBase
 
 clean:
+	rm -f MetricBase
 	go clean ./...
 
 test: query/graphiteParser/parser.go
