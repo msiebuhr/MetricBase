@@ -16,12 +16,7 @@ request is processed in it's entirety.
 Building
 --------
 
-Regardless of whether it's used or not, `libleveldb` has to be installed in
-some form or other for the server to compile. On Debian/Ubuntu it's
-`libleveldb-dev`, on OS X w. Homebrew it's `leveldb`.
-
 	go get github.com/msiebuhr/MetricBase
-	go get github.com/jmhodges/levigo
 	go build ./bin/MetricBase/
 
 Start the server

@@ -1,11 +1,10 @@
 package backends
 
 import (
-	"github.com/msiebuhr/MetricBase"
-	"io/ioutil"
-	"os"
 	"testing"
 	"time"
+
+	"github.com/msiebuhr/MetricBase"
 )
 
 func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
@@ -44,17 +43,6 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	if len(data) != 0 {
 		t.Errorf("Expected no data for query (foo.bar, 0, 0), got %v", data)
 	}
-}
-
-func TestLevelDbStoreAndGet(t *testing.T) {
-	// Create tempdir (& remove afterwards)
-	dir, err := ioutil.TempDir(".", "tmp_storage_test")
-	if err != nil {
-		t.Fatalf("Could not create tempdir: %v", err)
-	}
-	defer os.RemoveAll(dir)
-
-	generateTestStoreAndGet(NewLevelDb(dir), t)
 }
 
 func TestMemoryStoreAndGet(t *testing.T) {
