@@ -18,7 +18,7 @@ func main() {
 			frontends.NewHttpServer("./http-pub"),
 			frontends.NewGraphiteTcpServer(),
 		},
-		backends.NewMemoryBackend(),
+		backends.NewTestProxy(backends.NewMemoryBackend()),
 	)
 
 	go mb.Start()
