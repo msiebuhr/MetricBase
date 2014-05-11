@@ -1,4 +1,4 @@
-package MetricBase
+package frontends
 
 import (
 	"github.com/msiebuhr/MetricBase/backends"

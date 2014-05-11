@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/frontends"
 	"github.com/msiebuhr/MetricBase/serverBuilder"
@@ -14,7 +13,7 @@ import (
 func main() {
 	// Create server
 	mb := serverBuilder.NewMetricServer(
-		[]MetricBase.Frontend{
+		[]frontends.Frontend{
 			frontends.NewHttpServer("./http-pub"),
 			frontends.NewGraphiteTcpServer(),
 		},
