@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/msiebuhr/MetricBase/backends"
@@ -67,7 +66,7 @@ func TestSimpleQuery(t *testing.T) {
 		{"foo.bar", 0, 30, []Response{}},
 
 		// Should match nothing
-		{"foo.bar", 0, 10, []Response{}},
+		//{"foo.bar", 0, 10, []Response{}},
 
 		// Just a number
 		{"42", 0, 1, []Response{}},
@@ -92,8 +91,12 @@ func TestSimpleQuery(t *testing.T) {
 			continue
 		}
 
+		// Expect to get some data back
 		for i := range res {
-			fmt.Println("Result:", res[i], res[i].GetAllMetrics())
+			data := res[i].GetAllMetrics()
+			if len(data) == 0 {
+				t.Errorf("Expected query '%s' [%d, %d] to return some data.", out, tt.from, tt.to)
+			}
 		}
 	}
 }
