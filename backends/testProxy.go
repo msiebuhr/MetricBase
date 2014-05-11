@@ -55,8 +55,12 @@ func (tp *TestProxy) GetRawData(name string, from, to int64, result chan MetricB
 	// Run the generator-function on relevant input
 	go func() {
 		defer close(result)
-		// Generate sine curve
-		for i := from; i <= to; i += 10 {
+		// Generate about 4000 points, so we don't generate too little or too much data, pending the resolution
+		delta := (to - from) / 4000
+		if delta <= 0 {
+			delta = 1
+		}
+		for i := from; i <= to; i += delta {
 			result <- MetricBase.MetricValues{
 				Time:  i,
 				Value: f(i),
