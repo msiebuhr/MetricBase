@@ -1,19 +1,11 @@
 package MetricBase
 
 import (
-	"github.com/msiebuhr/MetricBase/metrics"
+	"github.com/msiebuhr/MetricBase/backends"
 )
 
-type Backend interface {
-	Start()
-	Stop()
-	AddMetric(metrics.Metric)
-	GetRawData(string, int64, int64, chan metrics.MetricValue)
-	GetMetricsList(chan string)
-}
-
 type Frontend interface {
-	SetBackend(Backend)
+	SetBackend(backends.Backend)
 	Start()
 	Stop()
 }

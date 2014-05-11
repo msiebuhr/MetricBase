@@ -2,15 +2,16 @@ package serverBuilder
 
 import (
 	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/backends"
 )
 
 type MetricServer struct {
 	frontends []MetricBase.Frontend
-	backend   MetricBase.Backend
+	backend   backends.Backend
 	stopChan  chan bool
 }
 
-func NewMetricServer(f []MetricBase.Frontend, b MetricBase.Backend) MetricServer {
+func NewMetricServer(f []MetricBase.Frontend, b backends.Backend) MetricServer {
 	// Hook up backends
 	for _, front := range f {
 		front.SetBackend(b)

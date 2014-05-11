@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/backends"
 )
 
 /* Request data from a built query tree
@@ -11,7 +11,7 @@ import (
  * aggregators more efficient.
  */
 type Request struct {
-	Backend  MetricBase.Backend
+	Backend  backends.Backend
 	From, To int64
 }
 

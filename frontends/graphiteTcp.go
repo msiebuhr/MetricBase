@@ -9,19 +9,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 type GraphiteTcpServer struct {
-	backend MetricBase.Backend
+	backend backends.Backend
 }
 
 func NewGraphiteTcpServer() *GraphiteTcpServer {
 	return &GraphiteTcpServer{}
 }
 
-func (g *GraphiteTcpServer) SetBackend(backend MetricBase.Backend) {
+func (g *GraphiteTcpServer) SetBackend(backend backends.Backend) {
 	g.backend = backend
 }
 

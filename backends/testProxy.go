@@ -4,7 +4,6 @@ import (
 	"math"
 	"strings"
 
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -35,10 +34,10 @@ func init() {
 // TestProxy sits in front of another backend and services various kinds of
 // dummy data under the 'test.'-prefix.
 type TestProxy struct {
-	nextBackend MetricBase.Backend
+	nextBackend Backend
 }
 
-func NewTestProxy(next MetricBase.Backend) *TestProxy {
+func NewTestProxy(next Backend) *TestProxy {
 	return &TestProxy{nextBackend: next}
 }
 

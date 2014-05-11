@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
-func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
+func generateTestStoreAndGet(backend Backend, t *testing.T) {
 	// Start backend
 	backend.Start()
 	defer backend.Stop()

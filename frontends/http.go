@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
 	"github.com/msiebuhr/MetricBase/query"
@@ -17,7 +16,7 @@ import (
 
 type HttpServer struct {
 	staticRoot string
-	backend    MetricBase.Backend
+	backend    backends.Backend
 }
 
 func NewHttpServer(staticRoot string) *HttpServer {
@@ -28,7 +27,7 @@ func NewHttpServer(staticRoot string) *HttpServer {
 	return &HttpServer{staticRoot: absRoot}
 }
 
-func (h *HttpServer) SetBackend(backend MetricBase.Backend) {
+func (h *HttpServer) SetBackend(backend backends.Backend) {
 	h.backend = backend
 }
 
