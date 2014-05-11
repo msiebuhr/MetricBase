@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 func TestStringer(t *testing.T) {
@@ -50,10 +50,10 @@ func TestStringer(t *testing.T) {
 
 func TestSimpleQuery(t *testing.T) {
 	backend := backends.NewReadOnlyBackend(
-		MetricBase.NewMetric("foo.bar", 3.14, 10),
-		MetricBase.NewMetric("foo.bar", 42.0, 20),
-		MetricBase.NewMetric("foo.baz", 10, 10),
-		MetricBase.NewMetric("foo.baz", 20, 20),
+		metrics.NewMetric("foo.bar", 3.14, 10),
+		metrics.NewMetric("foo.bar", 42.0, 20),
+		metrics.NewMetric("foo.baz", 10, 10),
+		metrics.NewMetric("foo.baz", 20, 20),
 	)
 	backend.Start()
 	defer backend.Stop()

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 var patterns map[string]func(i int64) float64
@@ -44,7 +45,7 @@ func NewTestProxy(next MetricBase.Backend) *TestProxy {
 func (tp *TestProxy) Start() { tp.nextBackend.Start() }
 func (tp *TestProxy) Stop()  { tp.nextBackend.Stop() }
 
-func (tp *TestProxy) AddMetric(metric MetricBase.Metric) {
+func (tp *TestProxy) AddMetric(metric metrics.Metric) {
 	tp.nextBackend.AddMetric(metric)
 }
 
@@ -61,7 +62,7 @@ func (tp *TestProxy) GetMetricsList(results chan string) {
 	}()
 }
 
-func (tp *TestProxy) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
+func (tp *TestProxy) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
 	if !strings.HasPrefix(name, "test.") {
 		tp.nextBackend.GetRawData(name, from, to, result)
 		return
@@ -83,7 +84,7 @@ func (tp *TestProxy) GetRawData(name string, from, to int64, result chan MetricB
 			delta = 1
 		}
 		for i := from; i <= to; i += delta {
-			result <- MetricBase.MetricValues{
+			result <- metrics.MetricValue{
 				Time:  i,
 				Value: f(i),
 			}

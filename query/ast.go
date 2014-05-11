@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 	"github.com/msiebuhr/MetricBase/query/graphiteParser"
 )
 
@@ -54,11 +54,11 @@ func (m SourceNumber) Query(q Request) ([]Response, error) {
 	res := NewResponse()
 	res.Meta["name"] = fmt.Sprintf("%v", m.value)
 	go func() {
-		res.Data <- MetricBase.MetricValues{
+		res.Data <- metrics.MetricValue{
 			Time:  q.From,
 			Value: m.value,
 		}
-		res.Data <- MetricBase.MetricValues{
+		res.Data <- metrics.MetricValue{
 			Time:  q.To,
 			Value: m.value,
 		}
@@ -139,7 +139,7 @@ func (f FunctionScale) Query(q Request) ([]Response, error) {
 	for i := range queries {
 		// Switch the channels around
 		srcChan := queries[i].Data
-		queries[i].Data = make(chan MetricBase.MetricValues, 100)
+		queries[i].Data = make(chan metrics.MetricValue, 100)
 
 		go func(i int) {
 			// Read all data from old channel, scale it and write to the new one

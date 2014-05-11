@@ -2,6 +2,7 @@ package backends
 
 import (
 	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 // GetMetricsAsList fetches all the metrics in a backend and returns it as a
@@ -18,9 +19,9 @@ func GetMetricsAsList(backend MetricBase.Backend) []string {
 }
 
 // GetDataAsList fetches the relevant data and returns it as a list.
-func GetDataAsList(backend MetricBase.Backend, name string, from, to int64) []MetricBase.MetricValues {
-	list := make([]MetricBase.MetricValues, 0)
-	out := make(chan MetricBase.MetricValues)
+func GetDataAsList(backend MetricBase.Backend, name string, from, to int64) []metrics.MetricValue {
+	list := make([]metrics.MetricValue, 0)
+	out := make(chan metrics.MetricValue)
 
 	backend.GetRawData(name, from, to, out)
 	for m := range out {

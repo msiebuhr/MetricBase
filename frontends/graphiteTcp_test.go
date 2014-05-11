@@ -1,10 +1,9 @@
 package frontends
 
 import (
-	//"io"
 	"testing"
-	//"time"
-	"github.com/msiebuhr/MetricBase"
+
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 // What about some basic lines
@@ -12,15 +11,15 @@ func TestSingleLineParsing(t *testing.T) {
 	t.Parallel()
 	var linetests = []struct {
 		in  string
-		out MetricBase.Metric
+		out metrics.Metric
 	}{
 		{
 			"foo 1 2",
-			*MetricBase.NewMetric("foo", 1, 2),
+			*metrics.NewMetric("foo", 1, 2),
 		},
 		{
 			"a.b.c 4.2 42",
-			*MetricBase.NewMetric("a.b.c", 4.2, 42),
+			*metrics.NewMetric("a.b.c", 4.2, 42),
 		},
 	}
 

@@ -1,30 +1,30 @@
 package backends
 
 import (
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 type ReadOnlyBackend struct {
-	data map[string][]MetricBase.MetricValues
+	data map[string][]metrics.MetricValue
 
 	stopChan     chan bool
 	listRequests chan chan string
 	dataRequests chan dataRequest
 }
 
-func NewReadOnlyBackend(metrics ...*MetricBase.Metric) *ReadOnlyBackend {
+func NewReadOnlyBackend(data ...*metrics.Metric) *ReadOnlyBackend {
 	r := &ReadOnlyBackend{
-		data:         make(map[string][]MetricBase.MetricValues),
+		data:         make(map[string][]metrics.MetricValue),
 		stopChan:     make(chan bool),
 		listRequests: make(chan chan string),
 		dataRequests: make(chan dataRequest),
 	}
 
 	// Add given metrics to backend
-	for _, m := range metrics {
+	for _, m := range data {
 		r.data[m.Name] = append(
 			r.data[m.Name],
-			MetricBase.MetricValues{Time: m.Time, Value: m.Value},
+			metrics.MetricValue{Time: m.Time, Value: m.Value},
 		)
 	}
 
@@ -60,7 +60,7 @@ func (r *ReadOnlyBackend) Start() {
 }
 
 // AddMetric is a dummy function that throws all given data away.
-func (r *ReadOnlyBackend) AddMetric(c MetricBase.Metric) {}
+func (r *ReadOnlyBackend) AddMetric(c metrics.Metric) {}
 
 func (r *ReadOnlyBackend) Stop() { r.stopChan <- true }
 
@@ -68,7 +68,7 @@ func (r *ReadOnlyBackend) GetMetricsList(results chan string) {
 	r.listRequests <- results
 }
 
-func (r *ReadOnlyBackend) GetRawData(name string, from, to int64, result chan MetricBase.MetricValues) {
+func (r *ReadOnlyBackend) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
 	r.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,

@@ -11,6 +11,7 @@ import (
 
 	"github.com/msiebuhr/MetricBase"
 	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/metrics"
 	"github.com/msiebuhr/MetricBase/query"
 )
 
@@ -49,7 +50,7 @@ func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// New request
-	resultChan := make(chan MetricBase.MetricValues, 100)
+	resultChan := make(chan metrics.MetricValue, 100)
 	h.backend.GetRawData(urlParts[2], time.Now().Add(-1*time.Hour*24*7).Unix(), time.Now().Unix(), resultChan)
 
 	// Fetch the data

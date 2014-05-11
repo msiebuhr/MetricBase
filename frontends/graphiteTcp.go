@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/msiebuhr/MetricBase"
 	"io"
 	"net"
 	"strconv"
 	"strings"
+
+	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 type GraphiteTcpServer struct {
@@ -44,11 +46,11 @@ func (g *GraphiteTcpServer) handleConnection(conn io.ReadWriteCloser) {
 	}
 }
 
-func parseGraphiteLine(line string) (error, MetricBase.Metric) {
+func parseGraphiteLine(line string) (error, metrics.Metric) {
 	// Find newline-rune
 	fields := strings.Fields(line)
 
-	newMetric := MetricBase.Metric{}
+	newMetric := metrics.Metric{}
 
 	// A line must at least contain <metric.name> <timestamp> <value> <tag=value>+
 	if len(fields) != 3 {

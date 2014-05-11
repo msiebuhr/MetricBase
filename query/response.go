@@ -1,16 +1,16 @@
 package query
 
 import (
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 type Response struct {
 	Meta map[string]string
-	Data chan MetricBase.MetricValues
+	Data chan metrics.MetricValue
 }
 
-func (r Response) GetAllMetrics() []MetricBase.MetricValues {
-	out := make([]MetricBase.MetricValues, 0)
+func (r Response) GetAllMetrics() []metrics.MetricValue {
+	out := make([]metrics.MetricValue, 0)
 	for m := range r.Data {
 		out = append(out, m)
 	}
@@ -20,6 +20,6 @@ func (r Response) GetAllMetrics() []MetricBase.MetricValues {
 func NewResponse() Response {
 	return Response{
 		Meta: make(map[string]string),
-		Data: make(chan MetricBase.MetricValues, 100),
+		Data: make(chan metrics.MetricValue, 100),
 	}
 }

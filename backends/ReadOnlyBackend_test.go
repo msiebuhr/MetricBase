@@ -3,13 +3,13 @@ package backends
 import (
 	"testing"
 
-	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 func TestReadOnlyBackend(t *testing.T) {
 	backend := NewReadOnlyBackend(
-		MetricBase.NewMetric("foo", 1, 1),
-		MetricBase.NewMetric("foo", 2, 2),
+		metrics.NewMetric("foo", 1, 1),
+		metrics.NewMetric("foo", 2, 2),
 	)
 
 	// Start backend

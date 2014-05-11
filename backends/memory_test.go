@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/msiebuhr/MetricBase"
+	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
@@ -13,7 +14,7 @@ func generateTestStoreAndGet(backend MetricBase.Backend, t *testing.T) {
 	defer backend.Stop()
 
 	// Load some data and read it back out
-	backend.AddMetric(*MetricBase.NewMetric("foo.bar", 3.14, 100))
+	backend.AddMetric(*metrics.NewMetric("foo.bar", 3.14, 100))
 
 	time.Sleep(time.Millisecond)
 
