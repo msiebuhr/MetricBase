@@ -11,6 +11,8 @@ type MetricServer struct {
 	stopChan  chan bool
 }
 
+// NewMetricServer returns a new MetricServer with the given backend and list
+// of frontends.
 func NewMetricServer(f []frontends.Frontend, b backends.Backend) MetricServer {
 	// Hook up backends
 	for _, front := range f {
@@ -25,6 +27,7 @@ func NewMetricServer(f []frontends.Frontend, b backends.Backend) MetricServer {
 	}
 }
 
+// Start the server. No guarantees are made about re-startability.
 func (m *MetricServer) Start() {
 	// Start the backend
 	go m.backend.Start()
@@ -45,6 +48,7 @@ func (m *MetricServer) Start() {
 	m.backend.Stop()
 }
 
+// Stop the server
 func (m *MetricServer) Stop() {
 	m.stopChan <- true
 }
