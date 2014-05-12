@@ -1,4 +1,5 @@
 // -*-go-*-
+
 package graphiteParser
 
 import (

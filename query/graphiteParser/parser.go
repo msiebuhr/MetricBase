@@ -1,5 +1,6 @@
 // line 1 "query/graphiteParser/parser.rl"
 // -*-go-*-
+
 package graphiteParser
 
 import (
@@ -7,9 +8,9 @@ import (
 	"fmt"
 )
 
-// line 10 "query/graphiteParser/parser.rl"
+// line 11 "query/graphiteParser/parser.rl"
 
-// line 15 "query/graphiteParser/parser.go"
+// line 16 "query/graphiteParser/parser.go"
 var _rpn_actions []byte = []byte{
 	0, 1, 2, 1, 6, 1, 7, 1, 8,
 	1, 9, 1, 10, 1, 11, 1, 12,
@@ -92,7 +93,7 @@ const rpn_error int = 0
 
 const rpn_en_main int = 5
 
-// line 11 "query/graphiteParser/parser.rl"
+// line 12 "query/graphiteParser/parser.rl"
 
 func Parse(data string) (res *Node, err error) {
 	//fmt.Printf("Parsing '%s'\n", data)
@@ -104,7 +105,7 @@ func Parse(data string) (res *Node, err error) {
 	// Make an empty root function
 	rootTree := NewNode("", 0, NODE_ROOT)
 
-	// line 112 "query/graphiteParser/parser.go"
+	// line 113 "query/graphiteParser/parser.go"
 	{
 		cs = rpn_start
 		ts = 0
@@ -112,7 +113,7 @@ func Parse(data string) (res *Node, err error) {
 		act = 0
 	}
 
-	// line 120 "query/graphiteParser/parser.go"
+	// line 121 "query/graphiteParser/parser.go"
 	{
 		var _klen int
 		var _trans int
@@ -137,7 +138,7 @@ func Parse(data string) (res *Node, err error) {
 
 				ts = p
 
-				// line 144 "query/graphiteParser/parser.go"
+				// line 145 "query/graphiteParser/parser.go"
 			}
 		}
 
@@ -214,15 +215,15 @@ func Parse(data string) (res *Node, err error) {
 				te = p + 1
 
 			case 4:
-				// line 27 "query/graphiteParser/parser.rl"
+				// line 28 "query/graphiteParser/parser.rl"
 
 				act = 1
 			case 5:
-				// line 23 "query/graphiteParser/parser.rl"
+				// line 24 "query/graphiteParser/parser.rl"
 
 				act = 2
 			case 6:
-				// line 31 "query/graphiteParser/parser.rl"
+				// line 32 "query/graphiteParser/parser.rl"
 
 				te = p + 1
 				{
@@ -234,32 +235,32 @@ func Parse(data string) (res *Node, err error) {
 					rootTree = newRootTree
 				}
 			case 7:
-				// line 44 "query/graphiteParser/parser.rl"
+				// line 45 "query/graphiteParser/parser.rl"
 
 				te = p + 1
 				{
 					rootTree.addArgument(NewNode(data[ts:te], ts, NODE_STRING))
 				}
 			case 8:
-				// line 40 "query/graphiteParser/parser.rl"
+				// line 41 "query/graphiteParser/parser.rl"
 
 				te = p + 1
 				{
 					rootTree = rootTree.parent
 				}
 			case 9:
-				// line 57 "query/graphiteParser/parser.rl"
+				// line 58 "query/graphiteParser/parser.rl"
 
 				te = p + 1
 				{ /*fmt.Println(",")*/
 				}
 			case 10:
-				// line 58 "query/graphiteParser/parser.rl"
+				// line 59 "query/graphiteParser/parser.rl"
 
 				te = p + 1
 
 			case 11:
-				// line 27 "query/graphiteParser/parser.rl"
+				// line 28 "query/graphiteParser/parser.rl"
 
 				te = p
 				p--
@@ -267,7 +268,7 @@ func Parse(data string) (res *Node, err error) {
 					rootTree.addArgument(NewNode(data[ts:te], ts, NODE_METRIC))
 				}
 			case 12:
-				// line 23 "query/graphiteParser/parser.rl"
+				// line 24 "query/graphiteParser/parser.rl"
 
 				te = p
 				p--
@@ -297,7 +298,7 @@ func Parse(data string) (res *Node, err error) {
 					}
 				}
 
-				// line 299 "query/graphiteParser/parser.go"
+				// line 300 "query/graphiteParser/parser.go"
 			}
 		}
 
@@ -318,7 +319,7 @@ func Parse(data string) (res *Node, err error) {
 
 				act = 0
 
-				// line 319 "query/graphiteParser/parser.go"
+				// line 320 "query/graphiteParser/parser.go"
 			}
 		}
 
@@ -344,7 +345,7 @@ func Parse(data string) (res *Node, err error) {
 		}
 	}
 
-	// line 63 "query/graphiteParser/parser.rl"
+	// line 64 "query/graphiteParser/parser.rl"
 
 	_ = act
 	_ = eof
