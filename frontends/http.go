@@ -168,6 +168,7 @@ func (h *HttpServer) Start() {
 	}
 }
 
+// Stop is a No-op, as Go's http server doesn't support being stopped.
 func (h *HttpServer) Stop() {
 	// NOP - no way of stopping a HTTP server, aparently
 }
