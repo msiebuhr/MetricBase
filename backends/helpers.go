@@ -1,6 +1,7 @@
 package backends
 
 import (
+	"github.com/mb0/glob"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -15,6 +16,32 @@ func GetMetricsAsList(backend Backend) []string {
 		list = append(list, name)
 	}
 	return list
+}
+
+// Apply glob pattern to metrics from a backend
+func GlobMetricsAsList(pattern string, backend Backend) ([]string, error) {
+	conf := glob.Default()
+	conf.Separator = '.'
+	globber, err := glob.New(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]string, 0)
+	out := make(chan string)
+
+	backend.GetMetricsList(out)
+	for name := range out {
+		match, err := globber.Match(pattern, name)
+		if err != nil {
+			return nil, err
+		}
+
+		if match {
+			list = append(list, name)
+		}
+	}
+	return list, nil
 }
 
 // GetDataAsList fetches the relevant data and returns it as a list.
