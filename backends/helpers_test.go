@@ -68,3 +68,29 @@ func TestGlobHelper(t *testing.T) {
 		}
 	}
 }
+
+func TestGlobPatternPrefix(t *testing.T) {
+	var globberTests = []struct {
+		glob   string
+		prefix string
+	}{
+		{"foo.bar", "foo.bar"},
+
+		{"foo.*.*.bar", "foo."},
+		{"foo?", "foo"},
+		{"foo]bar", "foo"},
+		{"foo[bar", "foo"},
+
+		{"trailing\\", "trailing\\"},
+		{"escaped.\\*.star", "escaped.\\*.star"},
+	}
+
+	for _, tt := range globberTests {
+		// Build a query
+		out := GlobPatternPrefix(tt.glob)
+
+		if out != tt.prefix {
+			t.Errorf("Expected '%v' to have prefix '%v', got '%v'.", tt.glob, tt.prefix, out)
+		}
+	}
+}

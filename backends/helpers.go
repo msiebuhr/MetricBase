@@ -56,3 +56,32 @@ func GetDataAsList(backend Backend, name string, from, to int64) []metrics.Metri
 
 	return list
 }
+
+// GlobPatternPrefix exracts the longest possible fixed-string
+// prefix. Ex. `statsd.foo.*.bar` should return `statsd.foo.`.
+func GlobPatternPrefix(pattern string) string {
+	conf := glob.Default()
+	conf.Separator = '.'
+
+	// Scan the pattern to find the longest prefix
+	var i = 0
+	for i = 0; i < len(pattern); i++ {
+		switch pattern[i] {
+		case '\\':
+			// Trailing backslash
+			if i+1 < len(pattern) {
+				i++
+			}
+		case conf.Range:
+			return pattern[:i]
+		case conf.RangeEnd:
+			return pattern[:i]
+		case conf.Star:
+			return pattern[:i]
+		case conf.Quest:
+			return pattern[:i]
+		}
+	}
+
+	return pattern
+}
