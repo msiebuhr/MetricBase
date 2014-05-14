@@ -1,6 +1,8 @@
 package backends
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -48,4 +50,18 @@ func generateTestStoreAndGet(backend Backend, t *testing.T) {
 func TestMemoryStoreAndGet(t *testing.T) {
 	// Create tempdir (& remove afterwards)
 	generateTestStoreAndGet(NewMemoryBackend(), t)
+}
+
+func TestBoltStoreAndGet(t *testing.T) {
+	f, err := ioutil.TempFile(".", "boltdb_test")
+	if err != nil {
+		t.Fatalf("Could not create test directory.")
+	}
+	defer os.Remove(f.Name())
+
+	db, err := NewBoltBackend(f.Name())
+	if err != nil {
+		t.Fatalf("Could not start BoltDB %v", err)
+	}
+	generateTestStoreAndGet(db, t)
 }
