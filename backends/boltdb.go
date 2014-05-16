@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"strconv"
 
 	"github.com/boltdb/bolt"
 	"github.com/msiebuhr/MetricBase/metrics"
@@ -34,25 +33,28 @@ func NewBoltBackend(filename string) (*BoltBackend, error) {
 	}, nil
 }
 
-func serializeMetric(m metrics.Metric) (key []byte, value []byte) {
-	// Encode key
-	key = []byte(fmt.Sprintf("%013d", m.Time))
-
-	// Encode value
+func putFloat64(v float64) []byte {
 	buf := new(bytes.Buffer)
-	_ = binary.Write(buf, binary.LittleEndian, m.Value)
-	value = buf.Bytes()
-
-	return key, value
+	_ = binary.Write(buf, binary.LittleEndian, v)
+	return buf.Bytes()
 }
 
-// {{{
-// Serialize metrics
-func parseMetricKey(b []byte) (int64, error) {
-	return strconv.ParseInt(string(b), 10, 64)
+func putUint40(v uint64) []byte {
+	b := make([]byte, 5)
+	b[0] = byte(v >> 32)
+	b[1] = byte(v >> 24)
+	b[2] = byte(v >> 16)
+	b[3] = byte(v >> 8)
+	b[4] = byte(v)
+	return b
 }
 
-func parseMetricValue(b []byte) float64 {
+func parseUint40(b []byte) uint64 {
+	return uint64(b[4]) | uint64(b[3])<<8 | uint64(b[2])<<16 | uint64(b[1])<<24 |
+		uint64(b[0])<<32
+}
+
+func parseFloat64(b []byte) float64 {
 	var r float64
 	buf := bytes.NewBuffer(b)
 	_ = binary.Read(buf, binary.LittleEndian, &r)
@@ -71,9 +73,7 @@ func (m *BoltBackend) Start() {
 						return err
 					}
 
-					key, value := serializeMetric(metric)
-
-					err = b.Put(key, value)
+					err = b.Put(putUint40(uint64(metric.Time)), putFloat64(metric.Value))
 					if err != nil {
 						return err
 					}
@@ -113,16 +113,16 @@ func (m *BoltBackend) Start() {
 					cursor := b.Cursor()
 
 					// Generate the first key, seek to it and begin reading data
-					firstKey := []byte(fmt.Sprintf("%013d", req.From))
+					firstKey := putUint40(uint64(req.From))
 					rawTime, rawVal := cursor.Seek(firstKey)
-					time, _ := parseMetricKey(rawTime)
+					time := int64(parseUint40(rawTime))
 
 					// Loop over the rest
 					for time <= req.To {
 						// Send the data
 						req.Result <- metrics.MetricValue{
 							Time:  time,
-							Value: parseMetricValue(rawVal),
+							Value: parseFloat64(rawVal),
 						}
 
 						// Extract a new time/value
@@ -134,7 +134,7 @@ func (m *BoltBackend) Start() {
 						}
 
 						// Parse time and loop-de-loop
-						time, _ = parseMetricKey(rawTime)
+						time = int64(parseUint40(rawTime))
 					}
 
 					return nil
