@@ -11,13 +11,20 @@ import (
 )
 
 func main() {
+	bdb, err := backends.NewBoltBackend("./bolt.db")
+	if err != nil {
+		fmt.Println("Could not create bolt database", err)
+		return
+	}
+
 	// Create server
 	mb := serverBuilder.NewMetricServer(
 		[]frontends.Frontend{
 			frontends.NewHttpServer("./http-pub"),
 			frontends.NewGraphiteTcpServer(),
 		},
-		backends.NewTestProxy(backends.NewMemoryBackend()),
+		//backends.NewTestProxy(backends.NewMemoryBackend()),
+		backends.NewTestProxy(bdb),
 	)
 
 	go mb.Start()
