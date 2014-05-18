@@ -10,7 +10,8 @@ import (
 )
 
 type BoltBackend struct {
-	db *bolt.DB
+	db        *bolt.DB
+	addBuffer map[string][]metrics.Metric
 
 	stopChan     chan bool
 	addChan      chan metrics.Metric
@@ -25,7 +26,9 @@ func NewBoltBackend(filename string) (*BoltBackend, error) {
 	}
 
 	return &BoltBackend{
-		db:           db,
+		db:        db,
+		addBuffer: make(map[string][]metrics.Metric),
+
 		stopChan:     make(chan bool),
 		addChan:      make(chan metrics.Metric),
 		listRequests: make(chan chan string),
@@ -66,20 +69,45 @@ func (m *BoltBackend) Start() {
 		for {
 			select {
 			case metric := <-m.addChan:
+				// Add it to the internal buffer
+				m.addBuffer[metric.Name] = append(m.addBuffer[metric.Name], metric)
+
+				// If the buffer isn't too large, don't write it to disk
+				totalBufSize := 0
+				largestBufName := metric.Name
+
+				for name, metricArray := range m.addBuffer {
+					totalBufSize += len(metricArray)
+					if len(metricArray) > len(m.addBuffer[largestBufName]) {
+						largestBufName = name
+					}
+				}
+
+				// Break if our buffer is too small
+				if totalBufSize < 10000 {
+					break
+				}
+
 				// Insert it in a database transaction
+				fmt.Println("Emptying buffer for", largestBufName, "size", len(m.addBuffer[largestBufName]))
 				err := m.db.Update(func(tx *bolt.Tx) error {
-					b, err := tx.CreateBucketIfNotExists([]byte(metric.Name))
+					b, err := tx.CreateBucketIfNotExists([]byte(largestBufName))
 					if err != nil {
 						return err
 					}
 
-					err = b.Put(putUint40(uint64(metric.Time)), putFloat64(metric.Value))
-					if err != nil {
-						return err
+					for _, m := range m.addBuffer[largestBufName] {
+						err = b.Put(putUint40(uint64(m.Time)), putFloat64(m.Value))
+						if err != nil {
+							return err
+						}
 					}
 
 					return nil
 				})
+
+				// Remove data from buffer
+				delete(m.addBuffer, largestBufName)
 
 				if err != nil {
 					fmt.Errorf("Bolt was unhappy writing data: %v", err)
@@ -91,11 +119,20 @@ func (m *BoltBackend) Start() {
 					c := tx.Cursor()
 					k, _ := c.First()
 					for k != nil {
-						req <- string(k)
+						// Skip sending this metric if it's in the buffer
+						if _, ok := m.addBuffer[string(k)]; !ok {
+							req <- string(k)
+						}
 						k, _ = c.Next()
 					}
 					return nil
 				})
+
+				// Add whatever we find in the buffer
+				for name := range m.addBuffer {
+					req <- name
+				}
+
 				close(req)
 
 			case req := <-m.dataRequests:
@@ -139,6 +176,18 @@ func (m *BoltBackend) Start() {
 
 					return nil
 				})
+
+				// Add stuff from the buffer
+				if data, ok := m.addBuffer[req.Name]; ok {
+					for _, m := range data {
+						if m.Time > req.From && m.Time < req.To {
+							req.Result <- metrics.MetricValue{
+								Time:  m.Time,
+								Value: m.Value,
+							}
+						}
+					}
+				}
 
 				close(req.Result)
 
