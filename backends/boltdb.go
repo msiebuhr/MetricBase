@@ -25,6 +25,10 @@ func NewBoltBackend(filename string) (*BoltBackend, error) {
 		return nil, err
 	}
 
+	// We generally do a lot of appending, so setting FillPercent high makes a
+	// lot of sense (BoltDB docs + simple benchmarks give up to 10% speedup)
+	db.FillPercent = 95
+
 	return &BoltBackend{
 		db:        db,
 		addBuffer: make(map[string][]metrics.Metric),
