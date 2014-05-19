@@ -10,8 +10,9 @@ import (
 )
 
 type BoltBackend struct {
-	db        *bolt.DB
-	addBuffer map[string][]metrics.Metric
+	db            *bolt.DB
+	addBuffer     map[string][]metrics.Metric
+	addBufferSize uint32
 
 	stopChan     chan bool
 	addChan      chan metrics.Metric
@@ -30,8 +31,9 @@ func NewBoltBackend(filename string) (*BoltBackend, error) {
 	db.FillPercent = 95
 
 	return &BoltBackend{
-		db:        db,
-		addBuffer: make(map[string][]metrics.Metric),
+		db:            db,
+		addBuffer:     make(map[string][]metrics.Metric),
+		addBufferSize: 0,
 
 		stopChan:     make(chan bool),
 		addChan:      make(chan metrics.Metric),
@@ -68,6 +70,37 @@ func parseFloat64(b []byte) float64 {
 	return r
 }
 
+func (m *BoltBackend) flushAddBuffer() {
+	// Insert it in a database transaction
+	err := m.db.Update(func(tx *bolt.Tx) error {
+		for seriesName, seriesData := range m.addBuffer {
+			b, err := tx.CreateBucketIfNotExists([]byte(seriesName))
+			if err != nil {
+				return err
+			}
+
+			for _, m := range seriesData {
+				err = b.Put(putUint40(uint64(m.Time)), putFloat64(m.Value))
+				if err != nil {
+					return err
+				}
+			}
+
+			// Remove data from buffer
+			delete(m.addBuffer, seriesName)
+		}
+		return nil
+	})
+
+	m.addBuffer = make(map[string][]metrics.Metric)
+	m.addBufferSize = 0
+
+	if err != nil {
+		fmt.Errorf("Bolt was unhappy writing data: %v", err)
+	}
+
+}
+
 func (m *BoltBackend) Start() {
 	go func() {
 		for {
@@ -75,47 +108,14 @@ func (m *BoltBackend) Start() {
 			case metric := <-m.addChan:
 				// Add it to the internal buffer
 				m.addBuffer[metric.Name] = append(m.addBuffer[metric.Name], metric)
-
-				// If the buffer isn't too large, don't write it to disk
-				totalBufSize := 0
-				largestBufName := metric.Name
-
-				for name, metricArray := range m.addBuffer {
-					totalBufSize += len(metricArray)
-					if len(metricArray) > len(m.addBuffer[largestBufName]) {
-						largestBufName = name
-					}
-				}
+				m.addBufferSize += 1
 
 				// Break if our buffer is too small
-				if totalBufSize < 10000 {
+				if m.addBufferSize < 10000 {
 					break
 				}
 
-				// Insert it in a database transaction
-				fmt.Println("Emptying buffer for", largestBufName, "size", len(m.addBuffer[largestBufName]))
-				err := m.db.Update(func(tx *bolt.Tx) error {
-					b, err := tx.CreateBucketIfNotExists([]byte(largestBufName))
-					if err != nil {
-						return err
-					}
-
-					for _, m := range m.addBuffer[largestBufName] {
-						err = b.Put(putUint40(uint64(m.Time)), putFloat64(m.Value))
-						if err != nil {
-							return err
-						}
-					}
-
-					return nil
-				})
-
-				// Remove data from buffer
-				delete(m.addBuffer, largestBufName)
-
-				if err != nil {
-					fmt.Errorf("Bolt was unhappy writing data: %v", err)
-				}
+				m.flushAddBuffer()
 
 			case req := <-m.listRequests:
 				// List all buckets in a view-transaction
