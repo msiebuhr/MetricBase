@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/msiebuhr/MetricBase/metrics"
@@ -103,8 +104,13 @@ func (m *BoltBackend) flushAddBuffer() {
 
 func (m *BoltBackend) Start() {
 	go func() {
+		t := time.NewTicker(time.Second * 10)
 		for {
 			select {
+			case <-t.C:
+				// Regularly flush the internal buffer
+				m.flushAddBuffer()
+
 			case metric := <-m.addChan:
 				// Add it to the internal buffer
 				m.addBuffer[metric.Name] = append(m.addBuffer[metric.Name], metric)
@@ -197,6 +203,7 @@ func (m *BoltBackend) Start() {
 
 			case <-m.stopChan:
 				// Stop comm chans and shut down database
+				t.Stop()
 				close(m.stopChan)
 				close(m.addChan)
 				close(m.listRequests)
