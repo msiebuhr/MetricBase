@@ -152,7 +152,7 @@ func (m *BoltBackend) Start() {
 
 					// Bail if bucket does not exist
 					if b == nil {
-						fmt.Println("Bucket does not exist")
+						fmt.Printf("Bolt - no series '%v'.\n", req.Name)
 						return nil
 					}
 

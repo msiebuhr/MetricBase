@@ -139,7 +139,7 @@
 		 */
 		function getData(index) {
 			// Call done() if there is no more data to fetch
-			if (index > selectedData.length) { return done(); }
+			if (index >= selectedData.length) { return done(); }
 
 			var name = selectedData[index];
 			$.getJSON('/rpc/get/' + name, function (out) {
