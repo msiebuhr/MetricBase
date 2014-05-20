@@ -139,7 +139,7 @@ func (f FunctionScale) Query(q Request) ([]Response, error) {
 	for i := range queries {
 		// Switch the channels around
 		srcChan := queries[i].Data
-		queries[i].Data = make(chan metrics.MetricValue, 100)
+		queries[i].Data = make(chan metrics.MetricValue, cap(srcChan))
 
 		go func(i int) {
 			// Read all data from old channel, scale it and write to the new one
