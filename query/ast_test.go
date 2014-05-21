@@ -2,6 +2,7 @@ package query
 
 import (
 	"testing"
+	"time"
 
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
@@ -59,21 +60,21 @@ func TestSimpleQuery(t *testing.T) {
 
 	var stringerTests = []struct {
 		query    string
-		from, to int64
+		from, to time.Time
 		output   []Response
 	}{
 		// Should match everything
-		{"foo.bar", 0, 30, []Response{}},
+		{"foo.bar", time.Unix(0, 0), time.Unix(30, 0), []Response{}},
 
 		// Should match nothing
 		//{"foo.bar", 0, 10, []Response{}},
 
 		// Just a number
-		{"42", 0, 1, []Response{}},
+		{"42", time.Unix(0, 0), time.Unix(1, 0), []Response{}},
 
 		// Funcntions
-		{"scale(foo.bar, 10.1)", 0, 30, []Response{}},
-		{"scale(foo.bar, foo.baz, 10)", 0, 30, []Response{}},
+		{"scale(foo.bar, 10.1)", time.Unix(0, 0), time.Unix(30, 0), []Response{}},
+		{"scale(foo.bar, foo.baz, 10)", time.Unix(0, 0), time.Unix(30, 0), []Response{}},
 	}
 
 	for _, tt := range stringerTests {

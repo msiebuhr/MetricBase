@@ -1,6 +1,8 @@
 package backends
 
 import (
+	"time"
+
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -40,7 +42,7 @@ func (m *MemoryBackend) Start() {
 			case req := <-m.dataRequests:
 				if _, ok := m.data[req.Name]; ok {
 					for _, data := range m.data[req.Name] {
-						if req.From < data.Time && data.Time < req.To {
+						if data.Time.After(req.From) && data.Time.Before(req.To) {
 							req.Result <- data
 						}
 					}
@@ -67,7 +69,7 @@ func (m *MemoryBackend) GetMetricsList(results chan string) {
 	m.listRequests <- results
 }
 
-func (m *MemoryBackend) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
+func (m *MemoryBackend) GetRawData(name string, from, to time.Time, result chan metrics.MetricValue) {
 	m.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,

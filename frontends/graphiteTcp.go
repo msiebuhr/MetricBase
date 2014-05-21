@@ -8,6 +8,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
@@ -68,11 +69,11 @@ func parseGraphiteLine(line string) (error, metrics.Metric) {
 	newMetric.Value = value
 
 	// Parse out timestamp
-	time, err := strconv.ParseInt(string(fields[2]), 10, 64)
+	timeNum, err := strconv.ParseInt(string(fields[2]), 10, 64)
 	if err != nil {
 		return err, newMetric
 	}
-	newMetric.Time = time
+	newMetric.Time = time.Unix(timeNum, 0)
 
 	return nil, newMetric
 }

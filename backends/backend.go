@@ -1,6 +1,8 @@
 package backends
 
 import (
+	"time"
+
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -13,7 +15,7 @@ type Backend interface {
 	// Add the given metric to the backend
 	AddMetric(metrics.Metric)
 	// Return a stream of data for the givem name, from and to arguments
-	GetRawData(string, int64, int64, chan metrics.MetricValue)
+	GetRawData(string, time.Time, time.Time, chan metrics.MetricValue)
 	// Get a list of the metrics the backend knows about
 	GetMetricsList(chan string)
 }

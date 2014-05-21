@@ -2,6 +2,7 @@ package backends
 
 import (
 	"github.com/msiebuhr/MetricBase/metrics"
+	"time"
 )
 
 type ReadOnlyBackend struct {
@@ -43,7 +44,7 @@ func (r *ReadOnlyBackend) Start() {
 			case req := <-r.dataRequests:
 				if _, ok := r.data[req.Name]; ok {
 					for _, data := range r.data[req.Name] {
-						if req.From < data.Time && data.Time < req.To {
+						if data.Time.After(req.From) && data.Time.Before(req.To) {
 							req.Result <- data
 						}
 					}
@@ -68,7 +69,7 @@ func (r *ReadOnlyBackend) GetMetricsList(results chan string) {
 	r.listRequests <- results
 }
 
-func (r *ReadOnlyBackend) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
+func (r *ReadOnlyBackend) GetRawData(name string, from, to time.Time, result chan metrics.MetricValue) {
 	r.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,

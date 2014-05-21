@@ -1,6 +1,8 @@
 package query
 
 import (
+	"time"
+
 	"github.com/msiebuhr/MetricBase/backends"
 )
 
@@ -12,10 +14,10 @@ import (
  */
 type Request struct {
 	Backend  backends.Backend
-	From, To int64
+	From, To time.Time
 }
 
-func NewRequest(from, to int64) Request {
+func NewRequest(from, to time.Time) Request {
 	return Request{
 		From: from,
 		To:   to,

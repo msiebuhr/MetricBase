@@ -81,7 +81,7 @@ func (m *BoltBackend) flushAddBuffer() {
 			}
 
 			for _, m := range seriesData {
-				err = b.Put(putUint40(uint64(m.Time)), putFloat64(m.Value))
+				err = b.Put(putUint40(uint64(m.Time.Unix())), putFloat64(m.Value))
 				if err != nil {
 					return err
 				}
@@ -160,15 +160,15 @@ func (m *BoltBackend) Start() {
 					cursor := b.Cursor()
 
 					// Generate the first key, seek to it and begin reading data
-					firstKey := putUint40(uint64(req.From))
+					firstKey := putUint40(uint64(req.From.Unix()))
 					rawTime, rawVal := cursor.Seek(firstKey)
-					time := int64(parseUint40(rawTime))
+					metricTime := time.Unix(int64(parseUint40(rawTime)), 0)
 
 					// Loop over the rest
-					for time <= req.To {
+					for metricTime.Before(req.To) {
 						// Send the data
 						req.Result <- metrics.MetricValue{
-							Time:  time,
+							Time:  metricTime,
 							Value: parseFloat64(rawVal),
 						}
 
@@ -181,7 +181,7 @@ func (m *BoltBackend) Start() {
 						}
 
 						// Parse time and loop-de-loop
-						time = int64(parseUint40(rawTime))
+						metricTime = time.Unix(int64(parseUint40(rawTime)), 0)
 					}
 
 					return nil
@@ -190,7 +190,7 @@ func (m *BoltBackend) Start() {
 				// Add stuff from the buffer
 				if data, ok := m.addBuffer[req.Name]; ok {
 					for _, m := range data {
-						if m.Time > req.From && m.Time < req.To {
+						if m.Time.After(req.From) && m.Time.Before(req.To) {
 							req.Result <- metrics.MetricValue{
 								Time:  m.Time,
 								Value: m.Value,
@@ -225,7 +225,7 @@ func (m *BoltBackend) GetMetricsList(results chan string) {
 	m.listRequests <- results
 }
 
-func (m *BoltBackend) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
+func (m *BoltBackend) GetRawData(name string, from, to time.Time, result chan metrics.MetricValue) {
 	m.dataRequests <- dataRequest{
 		Name:   name,
 		From:   from,

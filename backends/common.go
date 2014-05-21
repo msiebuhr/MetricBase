@@ -1,13 +1,15 @@
 package backends
 
 import (
+	"time"
+
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 // Commonly used internal data structures
 type dataRequest struct {
 	Name   string
-	From   int64
-	To     int64
+	From   time.Time
+	To     time.Time
 	Result chan metrics.MetricValue
 }

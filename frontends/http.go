@@ -50,7 +50,7 @@ func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 
 	// New request
 	resultChan := make(chan metrics.MetricValue, 100)
-	h.backend.GetRawData(urlParts[2], time.Now().Add(-1*time.Hour*24*7).Unix(), time.Now().Unix(), resultChan)
+	h.backend.GetRawData(urlParts[2], time.Now().Add(-1*time.Hour*24*7), time.Now(), resultChan)
 
 	// Fetch the data
 	newData := make(map[string]float64)
@@ -110,8 +110,8 @@ func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
 	// ARGH. Tends to hang about here somewhere...
 	responses, err := res.Query(query.Request{
 		Backend: h.backend,
-		From:    time.Now().Add(startDuration).Unix(),
-		To:      time.Now().Add(endDuration).Unix(),
+		From:    time.Now().Add(startDuration),
+		To:      time.Now().Add(endDuration),
 	})
 
 	if err != nil {

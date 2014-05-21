@@ -3,6 +3,7 @@ package backends
 import (
 	"math"
 	"strings"
+	"time"
 
 	"github.com/msiebuhr/MetricBase/metrics"
 )
@@ -61,7 +62,7 @@ func (tp *TestProxy) GetMetricsList(results chan string) {
 	}()
 }
 
-func (tp *TestProxy) GetRawData(name string, from, to int64, result chan metrics.MetricValue) {
+func (tp *TestProxy) GetRawData(name string, from, to time.Time, result chan metrics.MetricValue) {
 	if !strings.HasPrefix(name, "test.") {
 		tp.nextBackend.GetRawData(name, from, to, result)
 		return
@@ -78,14 +79,14 @@ func (tp *TestProxy) GetRawData(name string, from, to int64, result chan metrics
 	go func() {
 		defer close(result)
 		// Generate about 4000 points, so we don't generate too little or too much data, pending the resolution
-		delta := (to - from) / 4000
+		delta := to.Sub(from) / 4000
 		if delta <= 0 {
 			delta = 1
 		}
-		for i := from; i <= to; i += delta {
+		for i := from; i.Before(to); i = i.Add(delta) {
 			result <- metrics.MetricValue{
 				Time:  i,
-				Value: f(i),
+				Value: f(i.Unix()),
 			}
 		}
 	}()

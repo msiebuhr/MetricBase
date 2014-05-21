@@ -1,6 +1,8 @@
 package backends
 
 import (
+	"time"
+
 	"github.com/mb0/glob"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
@@ -45,7 +47,7 @@ func GlobMetricsAsList(pattern string, backend Backend) ([]string, error) {
 }
 
 // GetDataAsList fetches the relevant data and returns it as a list.
-func GetDataAsList(backend Backend, name string, from, to int64) []metrics.MetricValue {
+func GetDataAsList(backend Backend, name string, from, to time.Time) []metrics.MetricValue {
 	list := make([]metrics.MetricValue, 0)
 	out := make(chan metrics.MetricValue)
 

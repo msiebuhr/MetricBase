@@ -28,7 +28,7 @@ func generateTestStoreAndGet(backend Backend, t *testing.T) {
 	}
 
 	// Read back the data
-	data := GetDataAsList(backend, "foo.bar", 99, 101)
+	data := GetDataAsList(backend, "foo.bar", time.Unix(99, 0), time.Unix(101, 0))
 	if len(data) != 1 {
 		t.Fatalf("Expected to get one result, got %d", len(data))
 	}
@@ -36,12 +36,12 @@ func generateTestStoreAndGet(backend Backend, t *testing.T) {
 	if data[0].Value != 3.14 {
 		t.Errorf("Expected data[0].Value=3.14, got '%f'.", data[0].Value)
 	}
-	if data[0].Time != 100 {
+	if data[0].Time != time.Unix(100, 0) {
 		t.Errorf("Expected data[0].Time=100, got '%d'.", data[0].Time)
 	}
 
 	// Make a query that shouldn't return any data
-	data = GetDataAsList(backend, "foo.bar", 0, 0)
+	data = GetDataAsList(backend, "foo.bar", time.Unix(0, 0), time.Unix(0, 0))
 	if len(data) != 0 {
 		t.Errorf("Expected no data for query (foo.bar, 0, 0), got %v", data)
 	}
