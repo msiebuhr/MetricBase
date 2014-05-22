@@ -32,7 +32,7 @@ func (m *MemoryBackend) Start() {
 			case metric := <-m.addChan:
 				m.data[metric.Name] = append(
 					m.data[metric.Name],
-					metrics.MetricValue{Time: metric.Time, Value: metric.Value},
+					metric.GetMetricValue(),
 				)
 			case req := <-m.listRequests:
 				for key := range m.data {

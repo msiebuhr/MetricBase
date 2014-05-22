@@ -29,6 +29,10 @@ func NewMetric(name string, value float64, when int64) *Metric {
 	}
 }
 
+func (m Metric) GetMetricValue() MetricValue {
+	return m.MetricValue
+}
+
 // Stringifies to match the Graphite protocol
 func (m *Metric) String() string {
 	return fmt.Sprintf("%s %v %d", m.Name, m.Value, m.Time.Unix())

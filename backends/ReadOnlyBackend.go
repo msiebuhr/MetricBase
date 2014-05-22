@@ -25,7 +25,7 @@ func NewReadOnlyBackend(data ...*metrics.Metric) *ReadOnlyBackend {
 	for _, m := range data {
 		r.data[m.Name] = append(
 			r.data[m.Name],
-			metrics.MetricValue{Time: m.Time, Value: m.Value},
+			m.GetMetricValue(),
 		)
 	}
 
