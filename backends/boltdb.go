@@ -49,21 +49,6 @@ func putFloat64(v float64) []byte {
 	return buf.Bytes()
 }
 
-func putUint40(v uint64) []byte {
-	b := make([]byte, 5)
-	b[0] = byte(v >> 32)
-	b[1] = byte(v >> 24)
-	b[2] = byte(v >> 16)
-	b[3] = byte(v >> 8)
-	b[4] = byte(v)
-	return b
-}
-
-func parseUint40(b []byte) uint64 {
-	return uint64(b[4]) | uint64(b[3])<<8 | uint64(b[2])<<16 | uint64(b[1])<<24 |
-		uint64(b[0])<<32
-}
-
 func parseFloat64(b []byte) float64 {
 	var r float64
 	buf := bytes.NewBuffer(b)
@@ -81,7 +66,13 @@ func (m *BoltBackend) flushAddBuffer() {
 			}
 
 			for _, m := range seriesData {
-				err = b.Put(putUint40(uint64(m.Time.Unix())), putFloat64(m.Value))
+				key := make([]byte, 5)
+				metrics.TimeToUint40(key, m.Time)
+
+				value := putFloat64(m.Value)
+
+				// Write data
+				err = b.Put(key, value)
 				if err != nil {
 					return err
 				}
@@ -160,9 +151,10 @@ func (m *BoltBackend) Start() {
 					cursor := b.Cursor()
 
 					// Generate the first key, seek to it and begin reading data
-					firstKey := putUint40(uint64(req.From.Unix()))
+					firstKey := make([]byte, 5)
+					metrics.TimeToUint40(firstKey, req.From)
 					rawTime, rawVal := cursor.Seek(firstKey)
-					metricTime := time.Unix(int64(parseUint40(rawTime)), 0)
+					metricTime := metrics.Uint40ToTime(rawTime)
 
 					// Loop over the rest
 					for metricTime.Before(req.To) {
@@ -181,7 +173,7 @@ func (m *BoltBackend) Start() {
 						}
 
 						// Parse time and loop-de-loop
-						metricTime = time.Unix(int64(parseUint40(rawTime)), 0)
+						metricTime = metrics.Uint40ToTime(rawTime)
 					}
 
 					return nil
