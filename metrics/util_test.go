@@ -50,7 +50,7 @@ func BenchmarkTimeToUint40(b *testing.B) {
 	}
 }
 
-func TestUint4ToTime(t *testing.T) {
+func TestUint40ToTime(t *testing.T) {
 	var tests = []struct {
 		in  []byte
 		out time.Time
@@ -61,7 +61,7 @@ func TestUint4ToTime(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		res := Uint4ToTime(tt.in)
+		res := Uint40ToTime(tt.in)
 
 		if !res.Equal(tt.out) {
 			t.Errorf("Expected %v to decode to %v, got %v.", tt.in, tt.out, res)
@@ -72,6 +72,6 @@ func TestUint4ToTime(t *testing.T) {
 func BenchmarkUint40ToTime(b *testing.B) {
 	in := make([]byte, 5)
 	for i := 0; i < b.N; i++ {
-		_ = Uint4ToTime(in)
+		_ = Uint40ToTime(in)
 	}
 }

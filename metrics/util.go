@@ -17,7 +17,7 @@ func TimeToUint40(b []byte, t time.Time) {
 	b[4] = byte(v)
 }
 
-func Uint4ToTime(b []byte) time.Time {
+func Uint40ToTime(b []byte) time.Time {
 	i := int64(b[4]) |
 		int64(b[3])<<8 |
 		int64(b[2])<<16 |
