@@ -55,7 +55,7 @@ func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 	// Fetch the data
 	newData := make(map[string]float64)
 	for data := range resultChan {
-		newData[fmt.Sprintf("%v", data.Time)] = data.Value
+		newData[fmt.Sprintf("%v", data.Time.Unix())] = data.Value
 	}
 
 	// Encode as JSON
@@ -126,7 +126,7 @@ func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
 		newData[name] = make(map[string]float64)
 		for data := range result.Data {
 			//fmt.Println("Got data", data)
-			newData[name][fmt.Sprintf("%v", data.Time)] = data.Value
+			newData[name][fmt.Sprintf("%v", data.Time.Unix())] = data.Value
 		}
 	}
 
