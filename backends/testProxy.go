@@ -45,8 +45,8 @@ func NewTestProxy(next Backend) *TestProxy {
 func (tp *TestProxy) Start() { tp.nextBackend.Start() }
 func (tp *TestProxy) Stop()  { tp.nextBackend.Stop() }
 
-func (tp *TestProxy) AddMetric(metric metrics.Metric) {
-	tp.nextBackend.AddMetric(metric)
+func (tp *TestProxy) AddMetricChan(c chan metrics.Metric) {
+	tp.nextBackend.AddMetricChan(c)
 }
 
 func (tp *TestProxy) GetMetricsList(results chan string) {

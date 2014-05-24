@@ -42,6 +42,21 @@ func TestTimeToUint40(t *testing.T) {
 	}
 }
 
+// Should probably use testing/quick, but I can't quite get it to run.
+func TestTimeAndUint40BackAndForth(t *testing.T) {
+	buf := make([]byte, 5)
+	var i int64
+	for i = 0; i < 1e10; i += 1e4 {
+		in := time.Unix(i, 0)
+		TimeToUint40(buf, in)
+		out := Uint40ToTime(buf)
+
+		if !in.Equal(out) {
+			t.Errorf("Encoding %v -> %v -> %v fails", in, buf, out)
+		}
+	}
+}
+
 func BenchmarkTimeToUint40(b *testing.B) {
 	out := make([]byte, 5)
 	t := time.Unix(int64(b.N), 0)

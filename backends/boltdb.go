@@ -209,8 +209,12 @@ func (m *BoltBackend) Start() {
 
 func (m *BoltBackend) Stop() { m.stopChan <- true }
 
-func (m *BoltBackend) AddMetric(metric metrics.Metric) {
-	m.addChan <- metric
+func (b *BoltBackend) AddMetricChan(c chan metrics.Metric) {
+	go func() {
+		for m := range c {
+			b.addChan <- m
+		}
+	}()
 }
 
 func (m *BoltBackend) GetMetricsList(results chan string) {

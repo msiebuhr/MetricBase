@@ -13,7 +13,7 @@ type Backend interface {
 	Stop()
 
 	// Add the given metric to the backend
-	AddMetric(metrics.Metric)
+	AddMetricChan(chan metrics.Metric)
 	// Return a stream of data for the givem name, from and to arguments
 	GetRawData(string, time.Time, time.Time, chan metrics.MetricValue)
 	// Get a list of the metrics the backend knows about

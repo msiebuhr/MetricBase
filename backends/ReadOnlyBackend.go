@@ -60,8 +60,8 @@ func (r *ReadOnlyBackend) Start() {
 	}()
 }
 
-// AddMetric is a dummy function that throws all given data away.
-func (r *ReadOnlyBackend) AddMetric(c metrics.Metric) {}
+// AddMetricChan ignores all given data
+func (r *ReadOnlyBackend) AddMetricChan(chan metrics.Metric) {}
 
 func (r *ReadOnlyBackend) Stop() { r.stopChan <- true }
 

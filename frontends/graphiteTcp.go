@@ -30,13 +30,18 @@ func (g *GraphiteTcpServer) handleConnection(conn io.ReadWriteCloser) {
 	scanner := bufio.NewScanner(conn)
 	defer conn.Close()
 
+	// Create a channel for the metrics
+	addChan := make(chan metrics.Metric, 1000)
+	g.backend.AddMetricChan(addChan)
+	defer close(addChan)
+
 	for scanner.Scan() {
 		// PARSE METRIC LINES
 		//err, m :=
 		err, m := parseGraphiteLine(scanner.Text())
 		if err == nil {
 			// Send parsed metric to the back-end
-			g.backend.AddMetric(m)
+			addChan <- m
 		} else {
 			conn.Write([]byte(err.Error()))
 		}
