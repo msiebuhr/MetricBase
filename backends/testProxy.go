@@ -57,7 +57,7 @@ func (tp *TestProxy) GetMetricsList(results chan string) {
 		}
 
 		// Ask whatever backend we're running on about the rest
-		// Don't close results, as callee will do that:w
+		// Don't close results, as callee will do that
 		tp.nextBackend.GetMetricsList(results)
 	}()
 }
