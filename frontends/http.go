@@ -71,33 +71,16 @@ func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
 	// Populate query
 	req.ParseForm()
 
-	// Parse start and end times
-	startDateString := req.FormValue("start")
-	endDateString := req.FormValue("end")
-
-	if startDateString == "" {
-		startDateString = "-1w"
-	}
-	if endDateString == "" {
-		endDateString = "0"
-	}
-
-	// Parse the dates
-	// TODO: Know about absolute dates as well
-	startDuration, err := parseDuration(startDateString)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	endDuration, err := parseDuration(endDateString)
+	// Parse out relevant interval
+	start, end, err := ParseHttpTimespan(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Switch, so we start with the earliest date
-	if startDuration > endDuration {
-		endDuration, startDuration = startDuration, endDuration
+	if end.Before(start) {
+		start, end = end, start
 	}
 
 	// Build the query
@@ -110,8 +93,8 @@ func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
 	// ARGH. Tends to hang about here somewhere...
 	responses, err := res.Query(query.Request{
 		Backend: h.backend,
-		From:    time.Now().Add(startDuration),
-		To:      time.Now().Add(endDuration),
+		From:    start,
+		To:      end,
 	})
 
 	if err != nil {
