@@ -35,11 +35,6 @@ func parseInterval(interval string) (time.Time, time.Time, error) {
 		return time.Date(int(year), startMonth, startDay, 0, 0, 0, 0, time.UTC), time.Date(int(year), endMonth, endDay, 23, 59, 59, 0, time.UTC), nil
 	}
 
-	// The initial ParseInt returned some error that isn't about syntax
-	if err != nil && err != strconv.ErrSyntax {
-		return time.Time{}, time.Time{}, err
-	}
-
 	// Relative - ex. -1w
 	duration, err := parseDuration(interval)
 	if err != nil {
