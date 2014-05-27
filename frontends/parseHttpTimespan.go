@@ -7,7 +7,7 @@ import (
 )
 
 // Parse an interval and give start and end estimates
-func parseInterval(interval string) (time.Time, time.Time, error) {
+func parseInterval(interval string, now time.Time) (time.Time, time.Time, error) {
 	// If it's all digits - YYYYMMDD, YYYYMM or YYYY
 	_, err := strconv.ParseInt(interval, 10, 32)
 	if err == nil && (len(interval) == 8 || len(interval) == 6 || len(interval) == 4) {
@@ -46,25 +46,26 @@ func parseInterval(interval string) (time.Time, time.Time, error) {
 		duration = -duration
 	}
 
-	return time.Now().In(time.UTC).Add(duration), time.Now().In(time.UTC), nil
+	return now.Add(duration), now, nil
 }
 
 func ParseHttpTimespan(req *http.Request) (time.Time, time.Time, error) {
 	intervalString := req.FormValue("interval")
+	now := time.Now().In(time.UTC)
 
 	if intervalString != "" {
-		return parseInterval(intervalString)
+		return parseInterval(intervalString, now)
 	}
 
 	startString := req.FormValue("start")
 	endString := req.FormValue("end")
 
-	startTime, _, err := parseInterval(startString)
+	startTime, _, err := parseInterval(startString, now)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
 
-	_, endTime, err := parseInterval(endString)
+	_, endTime, err := parseInterval(endString, now)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}

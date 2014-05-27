@@ -18,12 +18,6 @@ func TestParseHttpTimespan_Table(t *testing.T) {
 		{"interval=2014",
 			time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Date(2014, 12, 31, 23, 59, 59, 0, time.UTC)},
-		{"interval=201405",
-			time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
-			time.Date(2014, 5, 31, 23, 59, 59, 0, time.UTC)},
-		{"interval=20140526",
-			time.Date(2014, 5, 26, 0, 0, 0, 0, time.UTC),
-			time.Date(2014, 5, 26, 23, 59, 59, 0, time.UTC)},
 
 		// Start and end times
 		{"start=2013&end=2014",
@@ -32,22 +26,6 @@ func TestParseHttpTimespan_Table(t *testing.T) {
 		{"start=201405&end=20140526",
 			time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
 			time.Date(2014, 5, 26, 23, 59, 59, 0, time.UTC)},
-
-		/*
-			// TODO: Tests with relative timestamps
-			{"start=-1w&end=-1h",
-				time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
-				time.Date(2014, 5, 26, 23, 59, 59, 0, time.UTC)},
-			{"interval=-1m1y",
-				time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
-				time.Date(2014, 5, 26, 23, 59, 59, 0, time.UTC)},
-
-			// TODO: Tests with months that doesn't have 31 days
-			{"interval=201402",
-				time.Date(2014, 2, 1, 0, 0, 0, 0, time.UTC),
-				time.Date(2014, 2, 28, 23, 59, 59, 0, time.UTC)},
-			// TODO: Leap years
-		*/
 	}
 
 	for _, tt := range timespan_tests {
@@ -69,6 +47,56 @@ func TestParseHttpTimespan_Table(t *testing.T) {
 
 		if !end.Equal(tt.end) {
 			t.Errorf("Expected %v to end at %v, but got %v.", tt.queryString, tt.end, end)
+		}
+	}
+}
+
+func TestparseInterval(t *testing.T) {
+	now := time.Now()
+	var timespan_tests = []struct {
+		interval   string
+		start, end time.Time
+	}{
+		// Intervals
+		{"2014",
+			time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2014, 12, 31, 23, 59, 59, 0, time.UTC)},
+		{"201405",
+			time.Date(2014, 5, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2014, 5, 31, 23, 59, 59, 0, time.UTC)},
+		{"20140526",
+			time.Date(2014, 5, 26, 0, 0, 0, 0, time.UTC),
+			time.Date(2014, 5, 26, 23, 59, 59, 0, time.UTC)},
+
+		{"-1w",
+			now.Add(-time.Hour * 24 * 7),
+			now},
+		{"1h10s",
+			now.Add(time.Hour + time.Second*10),
+			now},
+
+		// TODO: Tests with months that doesn't have 31 days
+		/*
+			{"interval=201402",
+			time.Date(2014, 2, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2014, 2, 28, 23, 59, 59, 0, time.UTC)},
+			// TODO: Leap years
+		*/
+	}
+
+	for _, tt := range timespan_tests {
+		start, end, err := parseInterval(tt.interval, now)
+		if err != nil {
+			t.Errorf("Got unexpected error parsing %s: %s", tt.interval, err)
+			continue
+		}
+
+		if !start.Equal(tt.start) {
+			t.Errorf("Expected %v to start at %v, but got %v.", tt.interval, tt.start, start)
+		}
+
+		if !end.Equal(tt.end) {
+			t.Errorf("Expected %v to end at %v, but got %v.", tt.interval, tt.end, end)
 		}
 	}
 }
