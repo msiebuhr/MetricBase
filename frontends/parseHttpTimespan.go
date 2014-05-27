@@ -46,7 +46,7 @@ func parseInterval(interval string) (time.Time, time.Time, error) {
 		duration = -duration
 	}
 
-	return time.Now().Add(duration), time.Now(), nil
+	return time.Now().In(time.UTC).Add(duration), time.Now().In(time.UTC), nil
 }
 
 func ParseHttpTimespan(req *http.Request) (time.Time, time.Time, error) {
