@@ -100,3 +100,18 @@ func TestparseInterval(t *testing.T) {
 		}
 	}
 }
+
+func TestparseIntervalErrors(t *testing.T) {
+	now := time.Now()
+	var timespan_errors = []string{
+		"1",
+		"20145",
+	}
+
+	for _, tt := range timespan_errors {
+		_, _, err := parseInterval(tt, now)
+		if err == nil {
+			t.Errorf("Expected an error for input '%s', got nothing.", tt)
+		}
+	}
+}
