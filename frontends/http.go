@@ -78,11 +78,6 @@ func (h *HttpServer) queryHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Switch, so we start with the earliest date
-	if end.Before(start) {
-		start, end = end, start
-	}
-
 	// Build the query
 	res, err := query.ParseGraphiteQuery(req.FormValue("q"))
 	if err != nil {
