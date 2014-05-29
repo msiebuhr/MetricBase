@@ -142,7 +142,7 @@
 			if (index >= selectedData.length) { return done(); }
 
 			var name = selectedData[index];
-			$.getJSON('/rpc/get/' + name, function (out) {
+			$.getJSON('/rpc/get/' + name + "?interval=-1w", function (out) {
 				var dates = Object.keys(out);
 
 				for(var i=0; i<dates.length; i++) {

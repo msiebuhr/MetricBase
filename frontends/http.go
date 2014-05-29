@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
@@ -48,9 +47,17 @@ func (h *HttpServer) metricHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Do time parsing
+	req.ParseForm()
+	start, end, err := ParseHttpTimespan(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// New request
 	resultChan := make(chan metrics.MetricValue, 100)
-	h.backend.GetRawData(urlParts[2], time.Now().Add(-1*time.Hour*24*7), time.Now(), resultChan)
+	h.backend.GetRawData(urlParts[2], start, end, resultChan)
 
 	// Fetch the data
 	newData := make(map[string]float64)
