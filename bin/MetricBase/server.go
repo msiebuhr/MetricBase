@@ -6,13 +6,17 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"github.com/msiebuhr/MetricBase/serverBuilder"
 
 	"github.com/msiebuhr/MetricBase/backends/boltdb"
 	"github.com/msiebuhr/MetricBase/backends/testProxy"
+
 	"github.com/msiebuhr/MetricBase/frontends"
 	"github.com/msiebuhr/MetricBase/frontends/graphiteTcp"
 	"github.com/msiebuhr/MetricBase/frontends/http"
-	"github.com/msiebuhr/MetricBase/serverBuilder"
+	"github.com/msiebuhr/MetricBase/frontends/internalMetrics"
 )
 
 var staticRoot = flag.String("http-pub", "./http-pub", "HTTP public dir")
@@ -34,6 +38,7 @@ func main() {
 		[]frontends.Frontend{
 			http.NewHttpServer(*staticRoot),
 			graphiteTcp.NewGraphiteTcpServer(),
+			internalMetrics.NewInternalMetrics(time.Second),
 		},
 		//backends.NewTestProxy(backends.NewMemoryBackend()),
 		testProxy.NewTestProxy(bdb),
