@@ -1,14 +1,16 @@
-package backends
+package testProxy
 
 import (
 	"testing"
 	"time"
 
+	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/backends/readOnly"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 func TestTestProxy(t *testing.T) {
-	backend := NewTestProxy(NewReadOnlyBackend(
+	backend := NewTestProxy(readOnly.NewReadOnlyBackend(
 		metrics.NewMetric("foo", 1, 1),
 		metrics.NewMetric("foo", 2, 2),
 	))
@@ -18,7 +20,7 @@ func TestTestProxy(t *testing.T) {
 	defer backend.Stop()
 
 	// Read back the data
-	data := GetDataAsList(backend, "foo", time.Unix(0, 0), time.Unix(5, 0))
+	data := backends.GetDataAsList(backend, "foo", time.Unix(0, 0), time.Unix(5, 0))
 	if len(data) != 2 {
 		t.Fatalf("Expected to get two results, got %d", len(data))
 	}
@@ -37,13 +39,13 @@ func TestTestProxy(t *testing.T) {
 		t.Errorf("Expected data[0].Time=2, got '%d'.", data[1].Time)
 	}
 
-	data = GetDataAsList(backend, "foo", time.Unix(-1, 0), time.Unix(0, 0))
+	data = backends.GetDataAsList(backend, "foo", time.Unix(-1, 0), time.Unix(0, 0))
 	if len(data) != 0 {
 		t.Errorf("Expected no data, got %v", data)
 	}
 
 	// Get some test.X data
-	data = GetDataAsList(backend, "test.sin", time.Unix(1, 0), time.Unix(100, 0))
+	data = backends.GetDataAsList(backend, "test.sin", time.Unix(1, 0), time.Unix(100, 0))
 	if len(data) == 0 {
 		t.Errorf("Expected some data from test.sin, got none")
 	}

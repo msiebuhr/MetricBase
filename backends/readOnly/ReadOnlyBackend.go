@@ -1,9 +1,18 @@
-package backends
+package readOnly
 
 import (
-	"github.com/msiebuhr/MetricBase/metrics"
 	"time"
+
+	"github.com/msiebuhr/MetricBase/metrics"
 )
+
+// Commonly used internal data structures
+type dataRequest struct {
+	Name   string
+	From   time.Time
+	To     time.Time
+	Result chan metrics.MetricValue
+}
 
 type ReadOnlyBackend struct {
 	data map[string][]metrics.MetricValue

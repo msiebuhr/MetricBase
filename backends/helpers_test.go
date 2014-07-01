@@ -3,11 +3,12 @@ package backends
 import (
 	"testing"
 
+	"github.com/msiebuhr/MetricBase/backends/readOnly"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
 func TestGlobHelper(t *testing.T) {
-	backend := NewReadOnlyBackend(
+	backend := readOnly.NewReadOnlyBackend(
 		metrics.NewMetric("foo", 1, 1),
 		metrics.NewMetric("foo.1.bar", 2, 2),
 		metrics.NewMetric("foo.a2.bar", 2, 2),

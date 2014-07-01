@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/backends/readOnly"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -49,7 +49,7 @@ func TestStringer(t *testing.T) {
 }
 
 func TestSimpleQuery(t *testing.T) {
-	backend := backends.NewReadOnlyBackend(
+	backend := readOnly.NewReadOnlyBackend(
 		metrics.NewMetric("foo.bar", 3.14, 10),
 		metrics.NewMetric("foo.bar", 42.0, 20),
 		metrics.NewMetric("foo.baz", 10, 10),

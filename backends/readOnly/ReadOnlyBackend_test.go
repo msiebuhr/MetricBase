@@ -1,9 +1,10 @@
-package backends
+package readOnly
 
 import (
 	"testing"
 	"time"
 
+	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -18,7 +19,7 @@ func TestReadOnlyBackend(t *testing.T) {
 	defer backend.Stop()
 
 	// Read back list of metrics
-	metricNames := GetMetricsAsList(backend)
+	metricNames := backends.GetMetricsAsList(backend)
 	if len(metricNames) != 1 {
 		t.Errorf("Expected to get one metric back, got %d", len(metricNames))
 	} else if metricNames[0] != "foo" {
@@ -26,7 +27,7 @@ func TestReadOnlyBackend(t *testing.T) {
 	}
 
 	// Read back the data
-	data := GetDataAsList(backend, "foo", time.Unix(0, 0), time.Unix(5, 0))
+	data := backends.GetDataAsList(backend, "foo", time.Unix(0, 0), time.Unix(5, 0))
 	if len(data) != 2 {
 		t.Fatalf("Expected to get two results, got %d", len(data))
 	}
@@ -45,7 +46,7 @@ func TestReadOnlyBackend(t *testing.T) {
 		t.Errorf("Expected data[0].Time=2, got '%d'.", data[1].Time)
 	}
 
-	data = GetDataAsList(backend, "foo", time.Unix(-1, 0), time.Unix(0, 0))
+	data = backends.GetDataAsList(backend, "foo", time.Unix(-1, 0), time.Unix(0, 0))
 	if len(data) != 0 {
 		t.Errorf("Expected no data, got %v", data)
 	}

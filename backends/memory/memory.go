@@ -1,10 +1,17 @@
-package backends
+package memory
 
 import (
 	"time"
 
 	"github.com/msiebuhr/MetricBase/metrics"
 )
+
+type dataRequest struct {
+	Name   string
+	From   time.Time
+	To     time.Time
+	Result chan metrics.MetricValue
+}
 
 type MemoryBackend struct {
 	data map[string][]metrics.MetricValue

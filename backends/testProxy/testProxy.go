@@ -1,10 +1,11 @@
-package backends
+package testProxy
 
 import (
 	"math"
 	"strings"
 	"time"
 
+	"github.com/msiebuhr/MetricBase/backends"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -35,10 +36,10 @@ func init() {
 // TestProxy sits in front of another backend and services various kinds of
 // dummy data under the 'test.'-prefix.
 type TestProxy struct {
-	nextBackend Backend
+	nextBackend backends.Backend
 }
 
-func NewTestProxy(next Backend) *TestProxy {
+func NewTestProxy(next backends.Backend) *TestProxy {
 	return &TestProxy{nextBackend: next}
 }
 

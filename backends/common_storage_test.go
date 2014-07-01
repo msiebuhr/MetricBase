@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/msiebuhr/MetricBase/backends/boltdb"
+	"github.com/msiebuhr/MetricBase/backends/memory"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
 
@@ -52,7 +54,7 @@ func generateTestStoreAndGet(backend Backend, t *testing.T) {
 
 func TestMemoryStoreAndGet(t *testing.T) {
 	// Create tempdir (& remove afterwards)
-	generateTestStoreAndGet(NewMemoryBackend(), t)
+	generateTestStoreAndGet(memory.NewMemoryBackend(), t)
 }
 
 func TestBoltStoreAndGet(t *testing.T) {
@@ -62,7 +64,7 @@ func TestBoltStoreAndGet(t *testing.T) {
 	}
 	defer os.Remove(f.Name())
 
-	db, err := NewBoltBackend(f.Name())
+	db, err := boltdb.NewBoltBackend(f.Name())
 	if err != nil {
 		t.Fatalf("Could not start BoltDB %v", err)
 	}

@@ -1,4 +1,4 @@
-package backends
+package boltdb
 
 import (
 	"bytes"
@@ -9,6 +9,13 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/msiebuhr/MetricBase/metrics"
 )
+
+type dataRequest struct {
+	Name   string
+	From   time.Time
+	To     time.Time
+	Result chan metrics.MetricValue
+}
 
 type BoltBackend struct {
 	db            *bolt.DB

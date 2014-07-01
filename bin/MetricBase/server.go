@@ -7,7 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/msiebuhr/MetricBase/backends"
+	"github.com/msiebuhr/MetricBase/backends/boltdb"
+	"github.com/msiebuhr/MetricBase/backends/testProxy"
 	"github.com/msiebuhr/MetricBase/frontends"
 	"github.com/msiebuhr/MetricBase/serverBuilder"
 )
@@ -20,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	// Create backend + database
-	bdb, err := backends.NewBoltBackend(*boltDb)
+	bdb, err := boltdb.NewBoltBackend(*boltDb)
 	if err != nil {
 		fmt.Println("Could not create bolt database", err)
 		return
@@ -33,7 +34,7 @@ func main() {
 			frontends.NewGraphiteTcpServer(),
 		},
 		//backends.NewTestProxy(backends.NewMemoryBackend()),
-		backends.NewTestProxy(bdb),
+		testProxy.NewTestProxy(bdb),
 	)
 
 	go mb.Start()
