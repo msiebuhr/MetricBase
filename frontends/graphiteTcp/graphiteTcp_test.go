@@ -1,4 +1,4 @@
-package frontends
+package graphiteTcp
 
 import (
 	"testing"

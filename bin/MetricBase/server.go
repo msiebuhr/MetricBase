@@ -10,6 +10,8 @@ import (
 	"github.com/msiebuhr/MetricBase/backends/boltdb"
 	"github.com/msiebuhr/MetricBase/backends/testProxy"
 	"github.com/msiebuhr/MetricBase/frontends"
+	"github.com/msiebuhr/MetricBase/frontends/graphiteTcp"
+	"github.com/msiebuhr/MetricBase/frontends/http"
 	"github.com/msiebuhr/MetricBase/serverBuilder"
 )
 
@@ -30,8 +32,8 @@ func main() {
 	// Create server
 	mb := serverBuilder.NewMetricServer(
 		[]frontends.Frontend{
-			frontends.NewHttpServer(*staticRoot),
-			frontends.NewGraphiteTcpServer(),
+			http.NewHttpServer(*staticRoot),
+			graphiteTcp.NewGraphiteTcpServer(),
 		},
 		//backends.NewTestProxy(backends.NewMemoryBackend()),
 		testProxy.NewTestProxy(bdb),
