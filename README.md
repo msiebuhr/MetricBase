@@ -1,6 +1,10 @@
 MetricBase
 ==========
 
+> **OLD TOY PROJECT - NOT MAINTAINED**
+>
+> If you want to play around, feel free to fork the project and hack away. If you're thinking of serious use, I'll be happy to hand over the project.
+
 For play/experimentation/single-server version of
 [Graphite](https://github.com/graphite-project).
 
